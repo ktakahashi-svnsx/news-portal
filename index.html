@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光・宇宙・政治 ニュースポータル</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --red:    #dc2626;
+  --red-lt: #fef2f2;
+  --purple: #7c3aed;
+  --green:  #059669;
+  --blue:   #2563eb;
+  --bg:     #f1f3f6;
+  --white:  #ffffff;
+  --border: #e2e5ea;
+  --text:   #111827;
+  --muted:  #6b7280;
+  --sidebar-w: 210px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+/* ── Loading ── */
+#loading{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s}
+#loading.out{opacity:0;pointer-events:none}
+.ld-logo{width:52px;height:52px;background:linear-gradient(135deg,var(--red),#f87171);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;margin-bottom:18px;animation:ldpulse 1.4s ease-in-out infinite}
+@keyframes ldpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.ld-text{font-size:13px;color:var(--muted);margin-bottom:14px}
+.ld-bar{width:160px;height:3px;background:#f3f4f6;border-radius:2px;overflow:hidden}
+.ld-fill{height:100%;background:var(--red);border-radius:2px;animation:ldfill 1.6s ease-in-out infinite}
+@keyframes ldfill{0%{width:0;margin-left:0}50%{width:100%;margin-left:0}100%{width:0;margin-left:100%}}
+
+/* ── Header ── */
+.hdr{background:var(--white);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;padding:0 20px;gap:12px;position:sticky;top:0;z-index:200;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.hdr-logo{width:34px;height:34px;background:linear-gradient(135deg,var(--red),#f87171);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;flex-shrink:0}
+.hdr-title h1{font-size:14px;font-weight:700;line-height:1.2;font-family:'Oswald',sans-serif;letter-spacing:.03em}
+.hdr-title p{font-size:10px;color:var(--muted)}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.hdr-live{width:7px;height:7px;border-radius:50%;background:var(--red);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* ── Layout ── */
+.wrap{display:flex;flex:1;min-height:0}
+
+/* ── Sidebar ── */
+.side{width:var(--sidebar-w);flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;gap:0;overflow-y:auto}
+.side-inner{padding:14px 12px;display:flex;flex-direction:column;gap:14px}
+
+.side-date-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.side-date-val{font-size:19px;font-weight:700;line-height:1.1;font-family:'Oswald',sans-serif}
+.side-badge{display:none;align-items:center;gap:4px;font-size:10px;color:var(--red);font-weight:600;margin-top:4px}
+.side-badge.on{display:flex}
+.side-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--red)}
+
+/* Calendar */
+.cal{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.cal-hd{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#fafafa;border-bottom:1px solid var(--border)}
+.cal-hd-lbl{font-size:12px;font-weight:700;font-family:'Oswald',sans-serif}
+.cal-nav{background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:0 4px;border-radius:5px;transition:background .12s;line-height:1}
+.cal-nav:hover{background:#f3f4f6;color:var(--text)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);padding:6px 6px 8px;gap:2px}
+.cal-dh{text-align:center;font-size:9px;color:var(--muted);padding:2px 0;font-weight:600}
+.cal-cell{text-align:center;font-size:10px;color:#c9cdd5;padding:5px 1px;border-radius:5px;cursor:default;line-height:1;position:relative;transition:background .1s}
+.cal-cell.has{color:var(--text);cursor:pointer;font-weight:600}
+.cal-cell.has:hover{background:var(--red-lt);color:var(--red)}
+.cal-cell.sel{background:var(--red)!important;color:#fff!important;font-weight:700}
+.cal-cell.today:not(.sel){outline:1.5px solid var(--red);color:var(--red);font-weight:600}
+.cal-cell.has:not(.sel)::after{content:'';position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--red)}
+.cal-leg{display:flex;gap:10px;padding:2px 8px 7px;font-size:9px;color:var(--muted)}
+.cal-leg span{display:flex;align-items:center;gap:3px}
+.leg-dot{width:5px;height:5px;border-radius:50%;background:var(--red)}
+.leg-sq{width:9px;height:9px;border-radius:2px;outline:1.5px solid var(--red)}
+
+/* Section label */
+.sb-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:8px}
+
+/* PDF items */
+.pdf-card{background:#fafafa;border:1px solid var(--border);border-radius:9px;padding:9px 10px;margin-bottom:7px}
+.pdf-card-top{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.pdf-ico{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.pdf-ico.t{background:#dbeafe}
+.pdf-ico.p{background:#fce7f3}
+.pdf-name{font-size:10px;color:#374151;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:118px}
+.pdf-btn{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;padding:6px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:10px;font-weight:700;font-family:inherit;transition:opacity .15s;text-decoration:none}
+.pdf-btn:hover{opacity:.85}
+.pdf-btn.off{background:#d1d5db;cursor:not-allowed;pointer-events:none}
+
+/* Audio */
+.audio-card{background:#fafafa;border:1px solid var(--border);border-radius:9px;padding:9px 10px}
+.audio-top{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.audio-ico{width:30px;height:30px;background:#f3e8ff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.audio-name{font-size:10px;color:#374151;line-height:1.4}
+.audio-card audio{width:100%;height:28px;display:block}
+.audio-none{font-size:10px;color:var(--muted);text-align:center;padding:2px 0}
+
+/* ── Main ── */
+.main{flex:1;min-width:0;padding:16px 20px;overflow-y:auto}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tab{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:22px;border:1px solid var(--border);background:var(--white);font-size:12px;font-weight:500;color:#374151;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit}
+.tab:hover{border-color:var(--red);color:var(--red)}
+.tab.act{color:#fff;border-color:transparent}
+.tab[data-i="0"].act{background:var(--red)}
+.tab[data-i="1"].act{background:var(--purple)}
+.tab[data-i="2"].act{background:var(--green)}
+.tab[data-i="3"].act{background:var(--blue)}
+.tab-ico{font-size:13px}
+.tab-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;border-radius:9px;font-size:10px;font-weight:700;background:rgba(0,0,0,.12)}
+.tab.act .tab-badge{background:rgba(255,255,255,.28)}
+
+/* Panel */
+.panel{display:none}
+.panel.act{display:block;animation:fin .2s}
+@keyframes fin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* Keyword bar */
+.kw-bar{background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.kw-ico{color:var(--muted);font-size:12px;flex-shrink:0}
+.kw-tag{font-size:11px;color:#4b5563;cursor:pointer;padding:1px 0;border-bottom:1px dashed transparent;transition:all .12s}
+.kw-tag:hover{color:var(--red);border-bottom-color:var(--red)}
+.kw-sep{color:#d1d5db}
+
+/* News grid */
+.ngrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px}
+@media(max-width:1080px){.ngrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.ngrid{grid-template-columns:1fr}}
+
+.ncard{background:var(--white);border:1px solid var(--border);border-radius:11px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s}
+.ncard:hover{box-shadow:0 4px 18px rgba(0,0,0,.08);transform:translateY(-2px)}
+.ncard-body{padding:13px;flex:1;display:flex;flex-direction:column}
+.ncard-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.ntag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.ntag.t0{background:#fef2f2;color:var(--red)}
+.ntag.t1{background:#f5f3ff;color:var(--purple)}
+.ntag.t2{background:#ecfdf5;color:var(--green)}
+.ntag.t3{background:#eff6ff;color:var(--blue)}
+.nmedia{font-size:10px;color:var(--muted)}
+.ntitle{font-size:13px;font-weight:700;color:var(--text);line-height:1.55;margin-bottom:7px}
+.nbody{font-size:11px;color:#4b5563;line-height:1.8;margin-bottom:8px;flex:1}
+.ninsight{background:#eff6ff;border-left:3px solid var(--blue);border-radius:0 6px 6px 0;padding:7px 9px;margin-bottom:8px;font-size:11px;color:#1e3a8a;line-height:1.7}
+.ninsight::before{content:'☞ ';font-weight:700}
+.nurl{font-size:10px;color:var(--muted);word-break:break-all;margin-top:auto}
+.nurl a{color:var(--muted);text-decoration:none}
+.nurl a:hover{color:var(--red)}
+.no-news{grid-column:1/-1;text-align:center;padding:52px 20px;color:var(--muted)}
+.no-news-ico{font-size:44px;margin-bottom:10px;opacity:.35}
+
+/* Charts */
+.charts-sec{margin-bottom:8px}
+.charts-hd{font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.charts-hd::before{content:'';width:3px;height:14px;background:var(--red);border-radius:2px}
+.chart-card{background:var(--white);border:1px solid var(--border);border-radius:11px;padding:16px;margin-bottom:12px}
+.chart-card-ttl{font-size:12px;font-weight:700;color:#374151;margin-bottom:2px}
+.chart-card-sub{font-size:10px;color:var(--muted);margin-bottom:12px}
+.chart-wrap{height:220px;position:relative}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="ld-logo">☀</div>
+  <div class="ld-text">ニュースを読み込んでいます...</div>
+  <div class="ld-bar"><div class="ld-fill"></div></div>
+</div>
+
+<header class="hdr">
+  <div class="hdr-logo">☀</div>
+  <div class="hdr-title">
+    <h1>光・宇宙・政治 ニュースポータル</h1>
+    <p>光学 ／ 宇宙・防衛 ／ 国内政治 ／ 海外政治</p>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-live"></div>
+    <span>日別ニュース</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- Sidebar -->
+  <aside class="side">
+    <div class="side-inner">
+
+      <div>
+        <div class="side-date-lbl">選択中の日付</div>
+        <div class="side-date-val" id="sideDate">—</div>
+        <div class="side-badge" id="sideBadge">レポートあり（<span id="topicCnt">0</span>トピック）</div>
+      </div>
+
+      <!-- Calendar -->
+      <div class="cal">
+        <div class="cal-hd">
+          <button class="cal-nav" id="calPrev">‹</button>
+          <span class="cal-hd-lbl" id="calLbl"></span>
+          <button class="cal-nav" id="calNext">›</button>
+        </div>
+        <div class="cal-grid">
+          <div class="cal-dh">日</div><div class="cal-dh">月</div>
+          <div class="cal-dh">火</div><div class="cal-dh">水</div>
+          <div class="cal-dh">木</div><div class="cal-dh">金</div>
+          <div class="cal-dh">土</div>
+          <div id="calDates" style="display:contents"></div>
+        </div>
+        <div class="cal-leg">
+          <span><div class="leg-dot"></div>データあり</span>
+          <span><div class="leg-sq"></div>今日</span>
+        </div>
+      </div>
+
+      <!-- PDF Downloads -->
+      <div>
+        <div class="sb-lbl">ダウンロード</div>
+        <div class="pdf-card">
+          <div class="pdf-card-top">
+            <div class="pdf-ico t">📘</div>
+            <div class="pdf-name" id="pdfTechName">技術系レポート</div>
+          </div>
+          <a class="pdf-btn off" id="pdfTechBtn">⬇ PDFをダウンロード</a>
+        </div>
+        <div class="pdf-card">
+          <div class="pdf-card-top">
+            <div class="pdf-ico p">📕</div>
+            <div class="pdf-name" id="pdfPolName">政治情勢レポート</div>
+          </div>
+          <a class="pdf-btn off" id="pdfPolBtn">⬇ PDFをダウンロード</a>
+        </div>
+      </div>
+
+      <!-- Audio -->
+      <div>
+        <div class="sb-lbl">音声解説</div>
+        <div class="audio-card">
+          <div class="audio-top">
+            <div class="audio-ico">🎙</div>
+            <div class="audio-name">音声ポッドキャスト</div>
+          </div>
+          <div id="audioWrap"><div class="audio-none">音声なし</div></div>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+
+    <div class="tabs">
+      <button class="tab act" data-i="0">
+        <span class="tab-ico">☀</span>光学・光アプリケーション
+        <span class="tab-badge" id="b0">0</span>
+      </button>
+      <button class="tab" data-i="1">
+        <span class="tab-ico">🛰</span>宇宙・防衛・核融合
+        <span class="tab-badge" id="b1">0</span>
+      </button>
+      <button class="tab" data-i="2">
+        <span class="tab-ico">🏛</span>国内政治
+        <span class="tab-badge" id="b2">0</span>
+      </button>
+      <button class="tab" data-i="3">
+        <span class="tab-ico">🌐</span>海外政治
+        <span class="tab-badge" id="b3">0</span>
+      </button>
+    </div>
+
+    <div class="panel act" id="p0">
+      <div class="kw-bar"><span class="kw-ico">🔖</span><span id="kw0" style="display:contents"></span></div>
+      <div class="ngrid" id="ng0"></div>
+      <div class="charts-sec" id="ch0"></div>
+    </div>
+    <div class="panel" id="p1">
+      <div class="kw-bar"><span class="kw-ico">🔖</span><span id="kw1" style="display:contents"></span></div>
+      <div class="ngrid" id="ng1"></div>
+      <div class="charts-sec" id="ch1"></div>
+    </div>
+    <div class="panel" id="p2">
+      <div class="kw-bar"><span class="kw-ico">🔖</span><span id="kw2" style="display:contents"></span></div>
+      <div class="ngrid" id="ng2"></div>
+      <div class="charts-sec" id="ch2"></div>
+    </div>
+    <div class="panel" id="p3">
+      <div class="kw-bar"><span class="kw-ico">🔖</span><span id="kw3" style="display:contents"></span></div>
+      <div class="ngrid" id="ng3"></div>
+      <div class="charts-sec" id="ch3"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ─── Config ───────────────────────────────────────────
+const THEMES = [
+  {key:'optics',   label:'光学',    cls:'t0', kws:['フォトニクス','シリコンフォトニクス','光電融合','LiDAR','CPO']},
+  {key:'space',    label:'宇宙',    cls:'t1', kws:['衛星','防衛','核融合','レーザー','宇宙開発']},
+  {key:'domestic', label:'国内政治', cls:'t2', kws:['国会','閣議','与党','野党','経済安保']},
+  {key:'intl',     label:'海外政治', cls:'t3', kws:['米中','欧州','地政学','輸出規制','外交']},
+];
+const PALETTE = ['#dc2626','#2563eb','#059669','#f59e0b','#7c3aed','#0891b2'];
+let curDate = null, availDates = [], calY, calM;
+const CI = {};
+
+// ─── Calendar ─────────────────────────────────────────
+function initCal(){const n=new Date();calY=n.getFullYear();calM=n.getMonth();renderCal();}
+function renderCal(){
+  document.getElementById('calLbl').textContent=`${calY}年${calM+1}月`;
+  const first=new Date(calY,calM,1).getDay(), days=new Date(calY,calM+1,0).getDate();
+  const today=new Date(), grid=document.getElementById('calDates');
+  grid.innerHTML='';
+  for(let i=0;i<first;i++){const el=document.createElement('div');el.className='cal-cell';grid.appendChild(el);}
+  for(let d=1;d<=days;d++){
+    const ds=`${calY}-${String(calM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const el=document.createElement('div');el.className='cal-cell';el.textContent=d;
+    if(availDates.includes(ds)){el.classList.add('has');el.addEventListener('click',()=>loadDate(ds));}
+    if(ds===curDate)el.classList.add('sel');
+    if(d===today.getDate()&&calM===today.getMonth()&&calY===today.getFullYear())el.classList.add('today');
+    grid.appendChild(el);
+  }
+}
+document.getElementById('calPrev').onclick=()=>{calM--;if(calM<0){calM=11;calY--;}renderCal();};
+document.getElementById('calNext').onclick=()=>{calM++;if(calM>11){calM=0;calY++;}renderCal();};
+
+// ─── Data loading ──────────────────────────────────────
+async function loadIndex(){
+  // Try localStorage first (uploaded via admin page)
+  try {
+    const stored = localStorage.getItem('news_index');
+    if(stored){
+      const idx = JSON.parse(stored);
+      availDates = idx.dates || [];
+      renderCal();
+      if(availDates.length) await loadDate(availDates[availDates.length-1]);
+      else loadDemo();
+      return;
+    }
+  } catch(e){}
+  // Try data/index.json (server mode)
+  try {
+    const r = await fetch('data/index.json');
+    if(!r.ok) throw 0;
+    const idx = await r.json();
+    availDates = idx.dates || [];
+    renderCal();
+    if(availDates.length) await loadDate(availDates[availDates.length-1]);
+    else loadDemo();
+  } catch { loadDemo(); }
+}
+
+async function loadDate(ds){
+  curDate = ds; renderCal();
+  const d = new Date(ds+'T00:00:00');
+  document.getElementById('sideDate').textContent=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+  // Try localStorage
+  try{
+    const stored = localStorage.getItem(`news_${ds}`);
+    if(stored){renderAll(JSON.parse(stored),ds);return;}
+  }catch(e){}
+  // Try file
+  try{
+    const r = await fetch(`data/${ds}/index.json`);
+    if(!r.ok) throw 0;
+    renderAll(await r.json(), ds);
+  }catch{renderAll(null,ds);}
+}
+
+// ─── Render ────────────────────────────────────────────
+function renderAll(data, ds){
+  let total=0;
+  THEMES.forEach((t,i)=>{
+    const d = data?.[t.key]||null;
+    const cnt = d?.items?.length||0; total+=cnt;
+    document.getElementById(`b${i}`).textContent=cnt;
+    renderKw(i, t.kws, d?.keywords);
+    renderNews(i, t, d);
+    renderCharts(i, t, d);
+  });
+  document.getElementById('topicCnt').textContent=total;
+  document.getElementById('sideBadge').classList.toggle('on',total>0);
+  renderPDFs(data?.pdfs, ds);
+  renderAudio(data?.audio);
+}
+
+function renderKw(i, defs, extra){
+  const c=document.getElementById(`kw${i}`); c.innerHTML='';
+  const kws=extra?.length?extra:defs;
+  kws.forEach((k,j)=>{
+    if(j){const s=document.createElement('span');s.className='kw-sep';s.textContent='・';c.appendChild(s);}
+    const sp=document.createElement('span');sp.className='kw-tag';sp.textContent=k;c.appendChild(sp);
+  });
+}
+
+function renderNews(i, theme, data){
+  const grid=document.getElementById(`ng${i}`);grid.innerHTML='';
+  const items=data?.items||[];
+  if(!items.length){grid.innerHTML=`<div class="no-news"><div class="no-news-ico">📭</div><div>この日のニュースはまだありません</div></div>`;return;}
+  items.forEach(item=>{
+    const card=document.createElement('div');card.className='ncard';
+    const ins=item.insight?`<div class="ninsight">${item.insight}</div>`:'';
+    const url=item.source?`<div class="nurl"><a href="${item.source}" target="_blank" rel="noopener">${item.source.length>55?item.source.slice(0,55)+'…':item.source}</a></div>`:'';
+    card.innerHTML=`<div class="ncard-body">
+      <div class="ncard-meta">
+        <span class="ntag ${theme.cls}">${item.tag||theme.label}</span>
+        <span class="nmedia">${item.sourceLabel||''}</span>
+      </div>
+      <div class="ntitle">${item.title}</div>
+      <div class="nbody">${item.detail}</div>
+      ${ins}${url}
+    </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function renderCharts(i, theme, data){
+  const wrap=document.getElementById(`ch${i}`);wrap.innerHTML='';
+  const charts=data?.charts||[];
+  if(!charts.length)return;
+  const hd=document.createElement('div');hd.className='charts-hd';hd.textContent='市場予測・データチャート';
+  wrap.appendChild(hd);
+  charts.forEach(ch=>{
+    const card=document.createElement('div');card.className='chart-card';
+    const cid='c_'+Math.random().toString(36).slice(2);
+    card.innerHTML=`<div class="chart-card-ttl">${ch.title}</div><div class="chart-card-sub">単位：${ch.dataset_label||''}</div><div class="chart-wrap"><canvas id="${cid}"></canvas></div>`;
+    wrap.appendChild(card);
+    const ctx=document.getElementById(cid).getContext('2d');
+    if(CI[cid])CI[cid].destroy();
+    const isBar=ch.type==='bar';
+    let datasets;
+    if(ch.datasets){
+      datasets=ch.datasets.map((ds,j)=>({label:ds.label,data:ds.data,borderColor:PALETTE[j%PALETTE.length],backgroundColor:PALETTE[j%PALETTE.length]+(isBar?'44':'18'),borderWidth:2,tension:0.4,fill:!isBar,pointRadius:3,pointBackgroundColor:PALETTE[j%PALETTE.length]}));
+    } else {
+      datasets=[{label:ch.dataset_label||'',data:ch.data,borderColor:theme.color||PALETTE[0],backgroundColor:(theme.color||PALETTE[0])+(isBar?'44':'18'),borderWidth:2,tension:0.4,fill:!isBar,pointRadius:3,pointBackgroundColor:theme.color||PALETTE[0]}];
+    }
+    CI[cid]=new Chart(ctx,{type:isBar?'bar':'line',data:{labels:ch.labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!ch.datasets,position:'bottom',labels:{font:{size:10,family:'Noto Sans JP'},padding:12,boxWidth:12}},tooltip:{backgroundColor:'#fff',borderColor:'#e5e7eb',borderWidth:1,titleColor:'#374151',bodyColor:'#374151',titleFont:{size:11,family:'Noto Sans JP'},bodyFont:{size:11,family:'Noto Sans JP'}}},scales:{x:{grid:{color:'#f3f4f6'},ticks:{color:'#6b7280',font:{size:10,family:'Noto Sans JP'}},border:{color:'#e5e7eb'}},y:{grid:{color:'#f3f4f6'},ticks:{color:'#6b7280',font:{size:10,family:'Noto Sans JP'}},border:{color:'#e5e7eb'}}}}});
+  });
+}
+
+function renderPDFs(pdfs, ds){
+  const tBtn=document.getElementById('pdfTechBtn'),pBtn=document.getElementById('pdfPolBtn');
+  const tNm=document.getElementById('pdfTechName'),pNm=document.getElementById('pdfPolName');
+  [tBtn,pBtn].forEach(b=>{b.classList.add('off');b.removeAttribute('href');b.removeAttribute('download');});
+  (pdfs||[]).forEach(pdf=>{
+    const btn=pdf.type==='tech'?tBtn:pBtn, nm=pdf.type==='tech'?tNm:pNm;
+    btn.classList.remove('off');btn.href=pdf.url;btn.setAttribute('download','');
+    nm.textContent=pdf.sublabel||pdf.label;
+  });
+}
+
+function renderAudio(audio){
+  const w=document.getElementById('audioWrap');
+  w.innerHTML=audio
+    ?`<audio controls style="width:100%;height:28px;" src="${audio.url}"></audio>`
+    :`<div class="audio-none">音声なし</div>`;
+}
+
+// ─── Tabs ──────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const i=btn.dataset.i;
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('act'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('act'));
+    btn.classList.add('act');
+    document.getElementById(`p${i}`).classList.add('act');
+  });
+});
+
+// ─── Demo data ─────────────────────────────────────────
+function loadDemo(){
+  const today=new Date();
+  const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  availDates=[-2,-1,0].map(n=>{const d=new Date(today);d.setDate(d.getDate()+n);return fmt(d);});
+  curDate=availDates[availDates.length-1];renderCal();
+  document.getElementById('sideDate').textContent=`${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
+  renderAll({
+    optics:{
+      keywords:['フォトニクス','シリコンフォトニクス','光電融合','光ファイバ','LiDAR'],
+      items:[
+        {tag:'光学',sourceLabel:'PR TIMES',title:'MolexがTeramountを買収　パッシブアライメント技術でCPO量産の障壁を解消',detail:'Molexがシリコンフォトニクス向け基板式ファイバーツーチップ接続を開発するTeramountを買収。AIデータセンター向けコパッケージドオプティクス（CPO）の量産スケーラビリティを大幅に向上させる。',insight:'CPO実用化の最大の障壁である接続器密度が解消に向かい、量産可能な光インターフェース市場をMolexが主導する展開。',source:'https://prtimes.jp/'},
+        {tag:'光学',sourceLabel:'SDxCentral',title:'nEye.ai、AIインフラ向け光スイッチング強化で8,000万ドルのシリーズD調達',detail:'光コンポーネント・AIプロセッサのバーンインテスト装置メーカーnEye.aiが8,000万ドルを調達。AlphabetとMicrosoftが参加。シリコンフォトニクス・MEMS・CMOSを単一チップに統合し、AIワークロードのネットワークボトルネックを解消する。',insight:'GPUクラスター拡大に伴う電力・遅延問題を解決し、ハイパースケーラーへの採用が加速する。',source:'https://www.sdxcentral.com/'},
+        {tag:'光学',sourceLabel:'豊田自動織機',title:'3D-LiDAR搭載の自動運転フォークリフトを新発売　トラック荷役を自動化',detail:'豊田自動織機が3D-LiDARでトラックの荷台を自動処理する自動運転フォークリフトを発売。物流業の「2024年問題」への対応策として注目される。',insight:'物流・製造現場向けの産業用LiDAR需要が拡大。LiDARセンサー・3D処理AI・自動搬送制御技術を持つメーカーへの発注が増える。',source:'https://www.toyota-shokki.co.jp/'},
+      ],
+      charts:[{title:'フォトニクス市場予測（2023–2030）',type:'line',dataset_label:'十億USD',labels:['2023','2024','2025','2026','2027','2028','2029','2030'],datasets:[{label:'フォトニクス全体',data:[18,22,27,33,40,49,58,68]},{label:'シリコンフォトニクス',data:[4,6,9,13,18,25,33,43]},{label:'LiDAR',data:[2,3,5,7,10,14,18,24]}]}]
+    },
+    space:{
+      items:[
+        {tag:'宇宙',sourceLabel:'Defense News',title:'ペンタゴン、次世代SDA衛星コンステレーション第2トランシェの調達先を選定',detail:'米宇宙開発局（SDA）が低軌道衛星ネットワーク第2トランシェの製造契約候補を絞り込んだ。総契約額は推定60億ドル超とされる。',insight:'光学偵察衛星・宇宙光通信の需要が拡大し、国内光学部品メーカーへの波及が期待される。',source:'#'},
+        {tag:'核融合',sourceLabel:'FT Energy',title:'Commonwealth Fusion、最新ラウンドで18億ドル調達——商業炉の建設前倒しへ',detail:'高温超電導マグネットを活用したコンパクト核融合炉開発を進めるCFS社が新たな資金調達を完了。2027年の実証炉点火を目指す。',insight:'核融合関連レーザー・光学診断技術の需要が増大。精密光学系サプライヤーに商機が生まれる。',source:'#'},
+      ],
+      charts:[{title:'宇宙産業投資額推移（十億ドル）',type:'bar',dataset_label:'十億ドル',labels:['2021','2022','2023','2024','2025E'],data:[14,17,23,28,35]}]
+    },
+    domestic:{
+      items:[
+        {tag:'経済安保',sourceLabel:'官報',title:'経済安保推進法改正案、衆院委員会で審議入り',detail:'量子技術・宇宙・先端半導体を新たな「特定重要技術」に追加する改正案の委員会審議が開始。政府側は年度内成立を目指す。',insight:'国内光・量子技術企業の政府調達機会が拡大。新指定技術の認定を受けた企業は競争優位を得る。',source:'#'},
+        {tag:'予算',sourceLabel:'日経新聞',title:'半導体・AI分野に3.2兆円、補正予算案の概要が判明',detail:'国内半導体製造拠点の整備支援および生成AI研究開発への重点投資を柱とした補正予算案の骨格が明らかに。',insight:'光電融合・シリコンフォトニクス関連の補助金申請機会が拡大する可能性が高い。',source:'#'},
+      ],
+      charts:[{title:'内閣支持率推移（%）',type:'line',dataset_label:'%',labels:['1月','2月','3月','4月','5月','6月'],data:[48,45,43,47,44,46]}]
+    },
+    intl:{
+      items:[
+        {tag:'米中',sourceLabel:'Reuters',title:'米商務省、AI半導体の輸出管理規則を改訂——対象範囲を拡大',detail:'米商務省がEARを改訂し、先端AI向けGPU・NPUの中国向け輸出規制の対象スペックを引き下げた。日本・オランダとの協調措置として実施される。',insight:'光電融合チップ・シリコンフォトニクスも規制対象に入る可能性があり、輸出管理体制の整備が急務。',source:'#'},
+        {tag:'欧州',sourceLabel:'Politico EU',title:'EU、欧州防衛基金を3倍増——光学・宇宙・サイバーを重点領域に指定',detail:'ブリュッセルでの防衛サミットで欧州防衛基金（EDF）の大幅拡充が合意された。光学センサー・衛星通信・サイバー防衛を重点3領域に指定。',insight:'EU域内の光学部品・フォトニクス企業への発注が増大。日本企業はEU拠点を通じた受注を狙える可能性。',source:'#'},
+      ],
+      charts:[{title:'地政学リスク指数（地域別）',type:'bar',dataset_label:'リスクスコア',labels:['東アジア','中東','欧州','南アジア','その他'],data:[72,68,45,38,25]}]
+    },
+    pdfs:[
+      {label:'技術系レポート',sublabel:'光学・光アプリ ＋ 宇宙・防衛・核融合',url:'#',type:'tech'},
+      {label:'政治情勢レポート',sublabel:'国内政治 ＋ 海外政治',url:'#',type:'politics'},
+    ],
+    audio:null,
+  }, curDate);
+}
+
+// ─── Init ──────────────────────────────────────────────
+(async()=>{
+  initCal();
+  await loadIndex();
+  setTimeout(()=>document.getElementById('loading').classList.add('out'),600);
+})();
+</script>
+</body>
+</html>
