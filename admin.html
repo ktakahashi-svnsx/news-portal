@@ -10,45 +10,44 @@
 :root{
   --red:#dc2626;--red-lt:#fef2f2;--bg:#f1f3f6;--white:#fff;
   --border:#e2e5ea;--text:#111827;--muted:#6b7280;
-  --green:#059669;--blue:#2563eb;--purple:#7c3aed;
+  --green:#059669;--blue:#2563eb;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);color:var(--text);min-height:100vh}
-
-/* Header */
 .hdr{background:var(--white);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 1px 6px rgba(0,0,0,.06)}
-.hdr-logo{width:34px;height:34px;background:linear-gradient(135deg,var(--red),#f87171);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;flex-shrink:0}
+.hdr-logo{width:34px;height:34px;background:linear-gradient(135deg,var(--red),#f87171);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff}
 .hdr h1{font-size:14px;font-weight:700;font-family:'Oswald',sans-serif;letter-spacing:.03em}
-.hdr-sub{font-size:11px;color:var(--muted);margin-left:auto}
-.hdr-badge{background:#fef2f2;color:var(--red);border:1px solid #fecaca;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
-
-/* Container */
-.container{max-width:900px;margin:0 auto;padding:24px 20px}
-
-/* Card */
+.hdr-badge{margin-left:auto;background:#fef2f2;color:var(--red);border:1px solid #fecaca;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
+.container{max-width:880px;margin:0 auto;padding:24px 20px}
 .card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:20px}
 .card-ttl{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px;font-family:'Oswald',sans-serif;letter-spacing:.02em}
-.card-sub{font-size:11px;color:var(--muted);margin-bottom:18px}
-
-/* Step badges */
+.card-sub{font-size:11px;color:var(--muted);margin-bottom:18px;line-height:1.7}
 .step{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;font-size:11px;font-weight:700;flex-shrink:0}
+.step.g{background:var(--green)}
 
-/* Date picker */
-.date-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+/* Drive banner */
+.drive-banner{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;margin-bottom:0}
+.drive-dot{width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.drive-info{flex:1}
+.drive-ttl{font-size:12px;font-weight:700;color:#065f46}
+.drive-sub{font-size:10px;color:#059669;margin-top:1px}
+.drive-link{font-size:11px;color:var(--blue);text-decoration:none;white-space:nowrap}
+.drive-link:hover{text-decoration:underline}
+
+input[type=date],input[type=password]{padding:8px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;color:var(--text);background:var(--white)}
+input:focus{outline:none;border-color:var(--red)}
+.date-row{display:flex;align-items:center;gap:12px}
 .date-row label{font-size:12px;color:var(--muted);white-space:nowrap}
-input[type=date]{padding:7px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;color:var(--text);background:var(--white);cursor:pointer;transition:border .15s}
-input[type=date]:focus{outline:none;border-color:var(--red)}
-
-/* API key */
 .apikey-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.apikey-row input{flex:1;min-width:220px;padding:8px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;color:var(--text)}
-.apikey-row input:focus{outline:none;border-color:var(--red)}
-.apikey-note{font-size:10px;color:var(--muted);margin-top:6px}
+.apikey-row input{flex:1;min-width:200px}
+.apikey-note{font-size:10px;color:var(--muted);margin-top:6px;line-height:1.6}
 .apikey-note a{color:var(--blue)}
 
-/* Upload area */
-.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:6px}
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:600px){.upload-grid{grid-template-columns:1fr}}
+.upload-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:700px){.upload-grid-3{grid-template-columns:1fr}}
 .upload-box{border:2px dashed var(--border);border-radius:10px;padding:18px 14px;text-align:center;cursor:pointer;transition:all .18s;position:relative;background:#fafafa}
 .upload-box:hover,.upload-box.drag{border-color:var(--red);background:var(--red-lt)}
 .upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
@@ -57,118 +56,131 @@ input[type=date]:focus{outline:none;border-color:var(--red)}
 .upload-box-hint{font-size:10px;color:var(--muted)}
 .upload-box-file{font-size:11px;color:var(--green);font-weight:600;margin-top:6px;word-break:break-all}
 
-/* Three upload boxes for audio */
-.upload-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:6px}
-@media(max-width:700px){.upload-grid-3{grid-template-columns:1fr}}
-
-/* Process button */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 24px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:all .15s}
-.btn-red{background:var(--red);color:#fff}
-.btn-red:hover{background:#b91c1c}
-.btn-red:disabled{background:#d1d5db;cursor:not-allowed}
-.btn-outline{background:var(--white);color:var(--text);border:1px solid var(--border)}
-.btn-outline:hover{border-color:var(--red);color:var(--red)}
-.btn-green{background:var(--green);color:#fff}
-.btn-green:hover{background:#047857}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:all .15s;white-space:nowrap}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#b91c1c}.btn-red:disabled{background:#d1d5db;cursor:not-allowed}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#047857}.btn-green:disabled{background:#d1d5db;cursor:not-allowed}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#1d4ed8}
+.btn-outline{background:var(--white);color:var(--text);border:1px solid var(--border)}.btn-outline:hover{border-color:var(--red);color:var(--red)}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 
-/* Progress / status */
-.status-box{border-radius:9px;padding:12px 14px;font-size:12px;line-height:1.7;margin-top:12px;display:none}
+.status-box{border-radius:9px;padding:12px 14px;font-size:12px;line-height:1.8;margin-top:12px;display:none}
 .status-box.show{display:block}
 .status-box.info{background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a}
 .status-box.ok{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
 .status-box.err{background:var(--red-lt);border:1px solid #fecaca;color:#991b1b}
-.progress-bar{width:100%;height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-top:8px}
-.progress-fill{height:100%;background:var(--red);border-radius:2px;transition:width .3s;width:0}
+.progress-bar{width:100%;height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-top:10px;display:none}
+.progress-fill{height:100%;background:var(--red);border-radius:2px;transition:width .35s;width:0}
 
 /* Preview */
-.preview-area{margin-top:18px}
-.preview-ttl{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.preview-ttl::before{content:'';display:inline-block;width:3px;height:12px;background:var(--red);border-radius:2px}
 .tab-preview{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.tp-btn{padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:var(--white);font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .12s;font-family:inherit}
-.tp-btn.act,.tp-btn:hover{background:var(--red);border-color:var(--red);color:#fff}
-.preview-panel{display:none}
-.preview-panel.act{display:block}
-.pnews-item{background:#fafafa;border:1px solid var(--border);border-radius:9px;padding:12px 14px;margin-bottom:10px}
+.tp-btn{padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:var(--white);font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .12s}
+.tp-btn.act{background:var(--red);border-color:var(--red);color:#fff}
+.preview-panel{display:none}.preview-panel.act{display:block}
+.pnews{background:#fafafa;border:1px solid var(--border);border-radius:9px;padding:12px 14px;margin-bottom:10px}
 .pnews-meta{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .ptag{font-size:10px;font-weight:700;background:var(--red-lt);color:var(--red);padding:2px 8px;border-radius:8px}
 .psrc{font-size:10px;color:var(--muted)}
 .pttl{font-size:13px;font-weight:700;margin-bottom:5px;line-height:1.5}
 .pdetail{font-size:11px;color:#4b5563;line-height:1.75;margin-bottom:6px}
-.pinsight{background:#eff6ff;border-left:3px solid var(--blue);border-radius:0 5px 5px 0;padding:6px 9px;font-size:11px;color:#1e3a8a;line-height:1.65;margin-bottom:6px}
-.pinsight::before{content:'☞ ';font-weight:700}
+.pins{background:#eff6ff;border-left:3px solid var(--blue);border-radius:0 5px 5px 0;padding:6px 9px;font-size:11px;color:#1e3a8a;line-height:1.65;margin-bottom:6px}
+.pins::before{content:'☞ ';font-weight:700}
 .purl-row{display:flex;align-items:center;gap:8px}
-.purl-row input{flex:1;padding:5px 9px;border:1px solid var(--border);border-radius:5px;font-size:11px;font-family:inherit;color:var(--text)}
-.purl-row input:focus{outline:none;border-color:var(--blue)}
-.add-btn{padding:5px 12px;border:none;border-radius:5px;background:var(--green);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+.purl-inp{flex:1;padding:5px 9px;border:1px solid var(--border);border-radius:5px;font-size:11px;font-family:inherit;color:var(--text)}
+.purl-inp:focus{outline:none;border-color:var(--blue)}
 .del-btn{padding:5px 8px;border:1px solid #fecaca;border-radius:5px;background:var(--red-lt);color:var(--red);font-size:11px;cursor:pointer;font-family:inherit}
 
-/* Saved dates list */
+/* Dates list */
 .dates-list{display:flex;flex-direction:column;gap:6px}
 .date-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fafafa;border:1px solid var(--border);border-radius:8px}
 .date-item-lbl{font-size:12px;font-weight:600;flex:1}
 .date-item-cnt{font-size:11px;color:var(--muted)}
 
-/* Divider */
-.divider{height:1px;background:var(--border);margin:18px 0}
+/* Claude paste box */
+.paste-box{background:#f8faff;border:1px solid #c7d8f8;border-radius:10px;padding:18px 20px;margin-top:14px}
+.paste-box-ttl{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.paste-steps{font-size:11px;color:#374151;line-height:2;margin-bottom:12px}
+.paste-steps b{color:var(--blue)}
+.copy-area{background:#fff;border:1px solid var(--border);border-radius:7px;padding:10px 12px;font-size:10px;font-family:monospace;line-height:1.6;color:#374151;max-height:100px;overflow:auto;white-space:pre-wrap;word-break:break-all;margin-bottom:10px;cursor:text}
 
-/* Textarea for manual edit */
-textarea.json-edit{width:100%;min-height:120px;padding:10px 12px;border:1px solid var(--border);border-radius:7px;font-size:11px;font-family:monospace;line-height:1.6;resize:vertical;color:var(--text)}
-textarea.json-edit:focus{outline:none;border-color:var(--blue)}
+/* Overlay */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:999}
+.overlay.show{display:flex}
+.overlay-modal{background:var(--white);border-radius:16px;padding:32px 36px;text-align:center;min-width:300px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.overlay-ico{font-size:36px;margin-bottom:12px}
+.overlay-ttl{font-size:15px;font-weight:700;margin-bottom:6px;font-family:'Oswald',sans-serif}
+.overlay-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+.overlay-bar{width:100%;height:6px;background:#f3f4f6;border-radius:3px;overflow:hidden}
+.overlay-fill{height:100%;background:var(--green);border-radius:3px;transition:width .4s;width:0}
 </style>
 </head>
 <body>
 
+<div class="overlay" id="overlay">
+  <div class="overlay-modal">
+    <div class="overlay-ico">☁️</div>
+    <div class="overlay-ttl" id="overlayTtl">処理中...</div>
+    <div class="overlay-sub" id="overlaySub">しばらくお待ちください</div>
+    <div class="overlay-bar"><div class="overlay-fill" id="overlayFill"></div></div>
+  </div>
+</div>
+
 <header class="hdr">
   <div class="hdr-logo">⚙</div>
   <h1>管理者ページ — ニュースポータル</h1>
-  <div class="hdr-sub">
-    <span class="hdr-badge">管理者専用</span>
-  </div>
+  <span class="hdr-badge">管理者専用</span>
 </header>
 
 <div class="container">
 
-  <!-- Step 1: API Key -->
+  <!-- Drive status -->
+  <div class="card">
+    <div class="card-ttl">☁️ Google Drive 連携状況</div>
+    <div class="card-sub">ニュースデータはGoogle Driveに自動保存されます。毎日ここからアップロードするだけで閲覧ページが更新されます。</div>
+    <div class="drive-banner">
+      <div class="drive-dot"></div>
+      <div class="drive-info">
+        <div class="drive-ttl">Google Drive 連携済み ✓</div>
+        <div class="drive-sub">フォルダ: news-portal-data（ID: 1wABDwoTT4rIT2E_ZqHASiO0N2713tXx3）</div>
+      </div>
+      <a class="drive-link" href="https://drive.google.com/drive/folders/1wABDwoTT4rIT2E_ZqHASiO0N2713tXx3" target="_blank">Driveで確認 →</a>
+    </div>
+  </div>
+
+  <!-- Step 1 -->
   <div class="card">
     <div class="card-ttl"><span class="step">1</span>Anthropic API キー設定</div>
-    <div class="card-sub">PDFからのAI自動抽出に使用します。キーはこのブラウザのセッション中のみ保持され、外部には送信されません。</div>
+    <div class="card-sub">PDFからのAI自動抽出に使用します。ブラウザのsessionStorageにのみ保持され、外部送信はされません。</div>
     <div class="apikey-row">
       <input type="password" id="apiKey" placeholder="sk-ant-api03-..." autocomplete="off">
       <button class="btn btn-outline" onclick="saveApiKey()">✓ 保存</button>
     </div>
-    <div class="apikey-note">
-      APIキーは <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a> で取得できます。<br>
-      ※ キーはsessionStorageに一時保存され、ブラウザを閉じると消去されます。
-    </div>
+    <div class="apikey-note">APIキーは <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a> で取得できます。ブラウザを閉じると消去されます。</div>
     <div class="status-box" id="apiStatus"></div>
   </div>
 
-  <!-- Step 2: Date selection -->
+  <!-- Step 2 -->
   <div class="card">
     <div class="card-ttl"><span class="step">2</span>対象日付を選択</div>
-    <div class="card-sub">このレポートが対象とする日付を選んでください。</div>
+    <div class="card-sub">このレポートが対象とする日付を選択してください。</div>
     <div class="date-row">
       <label>日付</label>
       <input type="date" id="targetDate">
     </div>
   </div>
 
-  <!-- Step 3: PDF Upload & AI Extract -->
+  <!-- Step 3 -->
   <div class="card">
     <div class="card-ttl"><span class="step">3</span>PDFアップロード &amp; AI自動抽出</div>
     <div class="card-sub">2種類のPDFをアップロードすると、AIが自動でニュース項目を抽出・構造化します。</div>
-
-    <div class="upload-grid">
-      <div class="upload-box" id="dropTech" ondragover="onDrag(event,this)" ondragleave="offDrag(event,this)" ondrop="onDrop(event,'tech',this)">
+    <div class="upload-grid" style="margin-bottom:6px">
+      <div class="upload-box" ondragover="onDrag(event,this)" ondragleave="offDrag(event,this)" ondrop="onDrop(event,'tech',this)">
         <input type="file" accept=".pdf" id="fileTech" onchange="onFileChange(this,'tech')">
         <div class="upload-box-ico">📘</div>
         <div class="upload-box-lbl">技術系レポート PDF</div>
         <div class="upload-box-hint">光学・光アプリ ＋ 宇宙・防衛・核融合</div>
         <div class="upload-box-file" id="fileTechName"></div>
       </div>
-      <div class="upload-box" id="dropPol" ondragover="onDrag(event,this)" ondragleave="offDrag(event,this)" ondrop="onDrop(event,'pol',this)">
+      <div class="upload-box" ondragover="onDrag(event,this)" ondragleave="offDrag(event,this)" ondrop="onDrop(event,'pol',this)">
         <input type="file" accept=".pdf" id="filePol" onchange="onFileChange(this,'pol')">
         <div class="upload-box-ico">📕</div>
         <div class="upload-box-lbl">政治情勢レポート PDF</div>
@@ -176,36 +188,33 @@ textarea.json-edit:focus{outline:none;border-color:var(--blue)}
         <div class="upload-box-file" id="filePolName"></div>
       </div>
     </div>
-
     <div class="btn-row">
       <button class="btn btn-red" id="extractBtn" onclick="extractAll()" disabled>🤖 AIで自動抽出する</button>
     </div>
-
     <div class="status-box" id="extractStatus"></div>
-    <div class="progress-bar" id="progressBar" style="display:none"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
   </div>
 
-  <!-- Step 4: Audio Upload -->
+  <!-- Step 4 -->
   <div class="card">
-    <div class="card-ttl"><span class="step">4</span>音声ファイルのアップロード</div>
-    <div class="card-sub">PDFから作成した音声解説ファイルをアップロードしてください。ファイルはBase64でブラウザに保存されます。</div>
-
+    <div class="card-ttl"><span class="step">4</span>音声ファイルのアップロード（任意）</div>
+    <div class="card-sub">PDFから作成した音声解説ファイルをアップロードしてください。Google Driveに自動保存されます。</div>
     <div class="upload-grid-3">
-      <div class="upload-box" id="dropAudioTech">
+      <div class="upload-box">
         <input type="file" accept="audio/*" id="fileAudioTech" onchange="onAudioChange(this,'tech')">
         <div class="upload-box-ico">🎙</div>
         <div class="upload-box-lbl">技術系 音声</div>
         <div class="upload-box-hint">MP3 / M4A / WAV</div>
         <div class="upload-box-file" id="audioTechName"></div>
       </div>
-      <div class="upload-box" id="dropAudioPol">
+      <div class="upload-box">
         <input type="file" accept="audio/*" id="fileAudioPol" onchange="onAudioChange(this,'pol')">
         <div class="upload-box-ico">🎙</div>
         <div class="upload-box-lbl">政治系 音声</div>
         <div class="upload-box-hint">MP3 / M4A / WAV</div>
         <div class="upload-box-file" id="audioPolName"></div>
       </div>
-      <div class="upload-box" id="dropAudioFull">
+      <div class="upload-box">
         <input type="file" accept="audio/*" id="fileAudioFull" onchange="onAudioChange(this,'full')">
         <div class="upload-box-ico">🎙</div>
         <div class="upload-box-lbl">総合 音声</div>
@@ -216,404 +225,310 @@ textarea.json-edit:focus{outline:none;border-color:var(--blue)}
     <div class="status-box" id="audioStatus"></div>
   </div>
 
-  <!-- Step 5: Preview & Edit -->
+  <!-- Step 5 Preview -->
   <div class="card" id="previewCard" style="display:none">
     <div class="card-ttl"><span class="step">5</span>内容確認・編集</div>
-    <div class="card-sub">AI抽出結果を確認し、必要に応じて編集してください。各ニュースにソースURLを追加できます。</div>
-
-    <div class="preview-area">
-      <div class="tab-preview">
-        <button class="tp-btn act" onclick="switchPrev(0,this)">☀ 光学</button>
-        <button class="tp-btn" onclick="switchPrev(1,this)">🛰 宇宙・防衛</button>
-        <button class="tp-btn" onclick="switchPrev(2,this)">🏛 国内政治</button>
-        <button class="tp-btn" onclick="switchPrev(3,this)">🌐 海外政治</button>
-      </div>
-      <div class="preview-panel act" id="pp0"></div>
-      <div class="preview-panel" id="pp1"></div>
-      <div class="preview-panel" id="pp2"></div>
-      <div class="preview-panel" id="pp3"></div>
+    <div class="card-sub">AI抽出結果を確認し、ソースURLの追加や記事の削除ができます。</div>
+    <div class="tab-preview">
+      <button class="tp-btn act" onclick="switchPrev(0,this)">☀ 光学</button>
+      <button class="tp-btn" onclick="switchPrev(1,this)">🛰 宇宙・防衛</button>
+      <button class="tp-btn" onclick="switchPrev(2,this)">🏛 国内政治</button>
+      <button class="tp-btn" onclick="switchPrev(3,this)">🌐 海外政治</button>
     </div>
+    <div class="preview-panel act" id="pp0"></div>
+    <div class="preview-panel" id="pp1"></div>
+    <div class="preview-panel" id="pp2"></div>
+    <div class="preview-panel" id="pp3"></div>
   </div>
 
-  <!-- Step 6: Save & Export -->
+  <!-- Step 6 Save -->
   <div class="card" id="saveCard" style="display:none">
-    <div class="card-ttl"><span class="step">6</span>保存・公開</div>
-    <div class="card-sub">確認が完了したら保存してください。閲覧者ページに自動反映されます。</div>
-
+    <div class="card-ttl"><span class="step g">6</span>Google Driveに保存して公開</div>
+    <div class="card-sub">ボタンを押すと、データの準備が完了します。その後、表示されるメッセージをClaudeに貼り付けると自動的にGoogle Driveに保存されます。</div>
     <div class="btn-row">
-      <button class="btn btn-green" onclick="saveData()">💾 ブラウザに保存（即時反映）</button>
-      <button class="btn btn-outline" onclick="exportJSON()">📥 JSONファイルとしてダウンロード</button>
-      <button class="btn btn-outline" onclick="exportInstructions()">📋 サーバー配置手順</button>
+      <button class="btn btn-green" id="prepareBtn" onclick="prepareUpload()">☁️ アップロード準備する</button>
+      <button class="btn btn-outline" onclick="exportJSON()">📥 JSONのみダウンロード</button>
     </div>
     <div class="status-box" id="saveStatus"></div>
+
+    <!-- Claude paste section -->
+    <div class="paste-box" id="pasteBox" style="display:none">
+      <div class="paste-box-ttl">🤖 次のステップ：Claudeに貼り付けてください</div>
+      <div class="paste-steps">
+        <b>1.</b> 下の「メッセージをコピー」ボタンを押す<br>
+        <b>2.</b> このページを閉じて、<b>Claudeのチャット画面</b>を開く<br>
+        <b>3.</b> コピーしたメッセージを貼り付けて送信する<br>
+        <b>4.</b> ClaudeがGoogle Driveに自動保存します ✓
+      </div>
+      <div class="copy-area" id="copyArea"></div>
+      <div class="btn-row" style="margin-top:0">
+        <button class="btn btn-blue" id="copyBtn" onclick="copyMessage()">📋 メッセージをコピー</button>
+      </div>
+    </div>
   </div>
 
-  <!-- Saved Data Management -->
+  <!-- Saved list -->
   <div class="card">
-    <div class="card-ttl">📅 保存済みデータ管理</div>
-    <div class="card-sub">現在ブラウザに保存されているレポートの一覧です。</div>
-    <div class="dates-list" id="datesList">
-      <div style="font-size:12px;color:var(--muted)">保存データなし</div>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-outline" onclick="clearAll()" style="color:var(--red);border-color:#fecaca">🗑 全データ削除</button>
-    </div>
+    <div class="card-ttl">📅 保存済みデータ一覧</div>
+    <div class="card-sub">Google Driveに保存されているレポートの一覧です。</div>
+    <div class="dates-list" id="datesList"><div style="font-size:12px;color:var(--muted)">読み込み中...</div></div>
+    <div class="btn-row"><button class="btn btn-outline" onclick="refreshDatesList()">🔄 更新</button></div>
   </div>
 
 </div>
 
 <script>
-// ─── State ────────────────────────────────────────────
-let pdfFiles = {tech: null, pol: null};
-let audioData = {tech: null, pol: null, full: null};
+const FOLDER_ID = '1wABDwoTT4rIT2E_ZqHASiO0N2713tXx3';
+const INDEX_ID  = '1QhDerYetozRpSmkmUEJbToFVNTrGv91D';
+
+let pdfFiles = {tech:null, pol:null};
+let pdfB64   = {tech:null, pol:null};
+let audioFiles = {tech:null, pol:null, full:null};
 let extractedData = null;
 
-const TABS = ['optics','space','domestic','intl'];
-const TAB_KEYS = ['optics','space','domestic','intl'];
+// ─── Init ─────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('targetDate').value = new Date().toISOString().slice(0,10);
+  const k = sessionStorage.getItem('anthropic_key');
+  if(k) document.getElementById('apiKey').value = k;
+  refreshDatesList();
+});
 
-// ─── Drag & drop helpers ───────────────────────────────
+// ─── API Key ──────────────────────────────────────────
+function saveApiKey(){
+  const k = document.getElementById('apiKey').value.trim();
+  if(!k){showStatus('apiStatus','APIキーを入力してください','err');return;}
+  sessionStorage.setItem('anthropic_key',k);
+  showStatus('apiStatus','✓ APIキーを保存しました（このセッション中のみ有効）','ok');
+}
+function getApiKey(){return sessionStorage.getItem('anthropic_key')||document.getElementById('apiKey').value.trim();}
+
+// ─── File handlers ────────────────────────────────────
 function onDrag(e,el){e.preventDefault();el.classList.add('drag');}
 function offDrag(e,el){el.classList.remove('drag');}
 function onDrop(e,type,el){
   e.preventDefault();el.classList.remove('drag');
   const f=e.dataTransfer.files[0];
-  if(f&&f.type==='application/pdf'){
-    pdfFiles[type]=f;
-    document.getElementById(type==='tech'?'fileTechName':'filePolName').textContent=f.name;
-    checkExtractBtn();
-  }
+  if(f&&f.type==='application/pdf')setFile(f,type);
 }
-function onFileChange(inp,type){
-  const f=inp.files[0];
-  if(f){
-    pdfFiles[type]=f;
-    document.getElementById(type==='tech'?'fileTechName':'filePolName').textContent=f.name;
-    checkExtractBtn();
-  }
+function onFileChange(inp,type){if(inp.files[0])setFile(inp.files[0],type);}
+function setFile(f,type){
+  pdfFiles[type]=f;
+  document.getElementById(type==='tech'?'fileTechName':'filePolName').textContent='✓ '+f.name;
+  checkExtractBtn();
 }
 function checkExtractBtn(){
   document.getElementById('extractBtn').disabled=!(pdfFiles.tech||pdfFiles.pol);
 }
-
-// ─── Audio ────────────────────────────────────────────
 function onAudioChange(inp,type){
-  const f=inp.files[0];
-  if(!f)return;
+  const f=inp.files[0];if(!f)return;
   const reader=new FileReader();
   reader.onload=e=>{
-    audioData[type]={name:f.name,url:e.target.result,mimeType:f.type};
-    document.getElementById(`audio${type.charAt(0).toUpperCase()+type.slice(1)}Name`).textContent=f.name;
+    audioFiles[type]={name:f.name,b64:e.target.result.split(',')[1],mimeType:f.type};
+    const ids={tech:'audioTechName',pol:'audioPolName',full:'audioFullName'};
+    document.getElementById(ids[type]).textContent='✓ '+f.name;
     showStatus('audioStatus','✓ 音声ファイルを読み込みました：'+f.name,'ok');
   };
   reader.readAsDataURL(f);
 }
 
-// ─── API Key ──────────────────────────────────────────
-function saveApiKey(){
-  const key=document.getElementById('apiKey').value.trim();
-  if(!key){showStatus('apiStatus','APIキーを入力してください','err');return;}
-  sessionStorage.setItem('anthropic_key',key);
-  showStatus('apiStatus','✓ APIキーを保存しました（このセッション中のみ有効）','ok');
-}
-function getApiKey(){
-  return sessionStorage.getItem('anthropic_key')||document.getElementById('apiKey').value.trim();
-}
-
-// ─── Date ─────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded',()=>{
-  const today=new Date();
-  document.getElementById('targetDate').value=today.toISOString().slice(0,10);
-  refreshDatesList();
-  // Restore API key if saved
-  const k=sessionStorage.getItem('anthropic_key');
-  if(k)document.getElementById('apiKey').value=k;
-});
-
-// ─── PDF → Text ───────────────────────────────────────
-async function pdfToText(file){
-  return new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onload=e=>{
-      // Convert to base64
-      const b64=e.target.result.split(',')[1];
-      resolve(b64);
-    };
-    reader.onerror=()=>reject(new Error('ファイル読み込みに失敗'));
-    reader.readAsDataURL(file);
+// ─── PDF → Base64 ─────────────────────────────────────
+async function readB64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>res(e.target.result.split(',')[1]);
+    r.onerror=()=>rej(new Error('ファイル読み込み失敗'));
+    r.readAsDataURL(file);
   });
 }
 
 // ─── AI Extraction ────────────────────────────────────
 async function extractAll(){
   const apiKey=getApiKey();
-  if(!apiKey){showStatus('extractStatus','Anthropic APIキーを入力してください（ステップ1）','err');return;}
+  if(!apiKey){showStatus('extractStatus','APIキーを入力してください（ステップ1）','err');return;}
   const ds=document.getElementById('targetDate').value;
-  if(!ds){showStatus('extractStatus','対象日付を選択してください（ステップ2）','err');return;}
+  if(!ds){showStatus('extractStatus','日付を選択してください（ステップ2）','err');return;}
 
   const btn=document.getElementById('extractBtn');
   btn.disabled=true;
-  document.getElementById('progressBar').style.display='block';
-  setProgress(5);
-  showStatus('extractStatus','🤖 AIによる抽出を開始しています...','info');
+  showBar(true);setProgress(5);
+  showStatus('extractStatus','🤖 AI抽出を開始しています...','info');
 
   try{
-    let techB64=null, polB64=null;
-    if(pdfFiles.tech){setProgress(15);showStatus('extractStatus','📄 技術系PDFを読み込み中...','info');techB64=await pdfToText(pdfFiles.tech);}
-    if(pdfFiles.pol){setProgress(30);showStatus('extractStatus','📄 政治情勢PDFを読み込み中...','info');polB64=await pdfToText(pdfFiles.pol);}
-
-    setProgress(40);
-    showStatus('extractStatus','🤖 AIが技術系レポートを解析中...','info');
+    if(pdfFiles.tech){setProgress(15);showStatus('extractStatus','📄 技術系PDF読み込み中...','info');pdfB64.tech=await readB64(pdfFiles.tech);}
+    if(pdfFiles.pol){setProgress(30);showStatus('extractStatus','📄 政治系PDF読み込み中...','info');pdfB64.pol=await readB64(pdfFiles.pol);}
 
     const result={optics:{items:[],charts:[]},space:{items:[],charts:[]},domestic:{items:[],charts:[]},intl:{items:[],charts:[]}};
 
-    if(techB64){
-      setProgress(50);
-      const techResult=await callAI(apiKey,techB64,'tech');
-      if(techResult.optics)Object.assign(result.optics,techResult.optics);
-      if(techResult.space)Object.assign(result.space,techResult.space);
+    if(pdfB64.tech){
+      setProgress(45);showStatus('extractStatus','🤖 技術系レポートをAI解析中...（1〜2分かかります）','info');
+      const r=await callAI(apiKey,pdfB64.tech,'tech');
+      if(r.optics)Object.assign(result.optics,r.optics);
+      if(r.space)Object.assign(result.space,r.space);
+    }
+    if(pdfB64.pol){
+      setProgress(70);showStatus('extractStatus','🤖 政治情勢レポートをAI解析中...（1〜2分かかります）','info');
+      const r=await callAI(apiKey,pdfB64.pol,'pol');
+      if(r.domestic)Object.assign(result.domestic,r.domestic);
+      if(r.intl)Object.assign(result.intl,r.intl);
     }
 
-    if(polB64){
-      setProgress(70);
-      showStatus('extractStatus','🤖 AIが政治情勢レポートを解析中...','info');
-      const polResult=await callAI(apiKey,polB64,'pol');
-      if(polResult.domestic)Object.assign(result.domestic,polResult.domestic);
-      if(polResult.intl)Object.assign(result.intl,polResult.intl);
-    }
-
-    setProgress(90);
-
-    // Add PDF download refs and audio
+    setProgress(95);
     result.pdfs=[
-      {label:'技術系レポート',sublabel:'光学・光アプリ ＋ 宇宙・防衛・核融合',url:'#',type:'tech'},
-      {label:'政治情勢レポート',sublabel:'国内政治 ＋ 海外政治',url:'#',type:'politics'},
+      {label:'技術系レポート',sublabel:'光学・光アプリ ＋ 宇宙・防衛・核融合',url:'',type:'tech'},
+      {label:'政治情勢レポート',sublabel:'国内政治 ＋ 海外政治',url:'',type:'politics'},
     ];
+    const pri=audioFiles.full||audioFiles.tech||audioFiles.pol;
+    result.audio=pri?{name:pri.name,url:''}:null;
 
-    // Audio
-    const primaryAudio = audioData.full||audioData.tech||audioData.pol;
-    result.audio = primaryAudio ? {url:primaryAudio.url,name:primaryAudio.name} : null;
-
-    extractedData={date:ds, data:result};
+    extractedData={date:ds,data:result};
     setProgress(100);
-    showStatus('extractStatus','✅ AI抽出が完了しました！内容を確認・編集してください。','ok');
+    showStatus('extractStatus','✅ AI抽出完了！ステップ5で内容を確認してください。','ok');
     renderPreview(result);
     document.getElementById('previewCard').style.display='block';
     document.getElementById('saveCard').style.display='block';
-
+    document.getElementById('previewCard').scrollIntoView({behavior:'smooth'});
   }catch(err){
-    showStatus('extractStatus','❌ エラーが発生しました：'+err.message,'err');
+    showStatus('extractStatus','❌ エラー：'+err.message,'err');
   }finally{
     btn.disabled=false;
-    setTimeout(()=>{document.getElementById('progressBar').style.display='none';setProgress(0);},2000);
+    setTimeout(()=>showBar(false),2500);
   }
 }
 
-async function callAI(apiKey, pdfB64, type){
-  const istech=type==='tech';
-  const prompt=istech
+async function callAI(apiKey,b64,type){
+  const prompt=type==='tech'
     ?`あなたは光学・フォトニクス・宇宙・防衛・核融合分野の専門ニュースアナリストです。
-添付のPDFレポートを分析し、以下のJSON形式で出力してください。
-必ずJSONのみを出力し、マークダウンのコードブロックや説明文は一切含めないでください。
+添付PDFを分析し、以下のJSONのみを出力してください（コードブロック・説明文不要）。
 
-{
-  "optics": {
-    "keywords": ["キーワード1","キーワード2","キーワード3","キーワード4","キーワード5"],
-    "items": [
-      {
-        "tag": "光学",
-        "sourceLabel": "ソース名（媒体名）",
-        "title": "ニュースタイトル（日本語で簡潔に）",
-        "detail": "ニュースの詳細説明（2〜4文、日本語）",
-        "insight": "ビジネスインサイト・投資家向け考察（1〜2文、日本語）",
-        "source": ""
-      }
-    ],
-    "charts": [
-      {
-        "title": "市場予測タイトル",
-        "type": "line",
-        "dataset_label": "単位（例：十億USD）",
-        "labels": ["2023","2024","2025","2026","2027","2028"],
-        "datasets": [
-          {"label": "カテゴリ名", "data": [10,15,20,28,38,50]}
-        ]
-      }
-    ]
-  },
-  "space": {
-    "keywords": ["キーワード1","キーワード2","キーワード3"],
-    "items": [ ...同形式... ],
-    "charts": [ ...同形式... ]
-  }
-}
+{"optics":{"keywords":["kw1","kw2","kw3","kw4","kw5"],"items":[{"tag":"光学","sourceLabel":"媒体名","title":"タイトル","detail":"詳細2〜4文","insight":"インサイト1〜2文","source":""}],"charts":[{"title":"チャート名","type":"line","dataset_label":"単位","labels":["2023","2024","2025","2026","2027"],"datasets":[{"label":"系列","data":[10,15,22,30,40]}]}]},"space":{"keywords":["kw1","kw2","kw3"],"items":[同形式],"charts":[同形式]}}
 
-PDFに記載されているニュースを最大5件ずつ抽出してください。チャートデータはPDF内の数値・市場予測を元に作成してください。数値が不明な場合は合理的な推定値を使用してください。`
-    :`あなたは国内・海外政治専門のニュースアナリストです。
-添付のPDFレポートを分析し、以下のJSON形式で出力してください。
-必ずJSONのみを出力し、マークダウンのコードブロックや説明文は一切含めないでください。
+各セクション最大5件。`
+    :`あなたは国内・海外政治の専門ニュースアナリストです。
+添付PDFを分析し、以下のJSONのみを出力してください（コードブロック・説明文不要）。
 
-{
-  "domestic": {
-    "keywords": ["キーワード1","キーワード2","キーワード3","キーワード4","キーワード5"],
-    "items": [
-      {
-        "tag": "国内政治",
-        "sourceLabel": "ソース名（媒体名）",
-        "title": "ニュースタイトル（日本語で簡潔に）",
-        "detail": "ニュースの詳細説明（2〜4文、日本語）",
-        "insight": "ビジネスへの影響・政策考察（1〜2文、日本語）",
-        "source": ""
-      }
-    ],
-    "charts": [
-      {
-        "title": "チャートタイトル",
-        "type": "line",
-        "dataset_label": "単位",
-        "labels": ["1月","2月","3月","4月","5月","6月"],
-        "data": [48,45,43,47,44,46]
-      }
-    ]
-  },
-  "intl": {
-    "keywords": ["キーワード1","キーワード2","キーワード3"],
-    "items": [ ...同形式... ],
-    "charts": [ ...同形式... ]
-  }
-}
+{"domestic":{"keywords":["kw1","kw2","kw3","kw4","kw5"],"items":[{"tag":"国内政治","sourceLabel":"媒体名","title":"タイトル","detail":"詳細2〜4文","insight":"インサイト1〜2文","source":""}],"charts":[{"title":"チャート名","type":"line","dataset_label":"単位","labels":["1月","2月","3月","4月","5月","6月"],"data":[48,45,43,47,44,46]}]},"intl":{"keywords":["kw1","kw2","kw3"],"items":[同形式],"charts":[同形式]}}
 
-PDFに記載されているニュースを最大5件ずつ抽出してください。`;
+各セクション最大5件。`;
 
-  const response = await fetch('https://api.anthropic.com/v1/messages',{
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({
-      model:'claude-opus-4-5',
-      max_tokens:4000,
-      messages:[{
-        role:'user',
-        content:[
-          {type:'document',source:{type:'base64',media_type:'application/pdf',data:pdfB64}},
-          {type:'text',text:prompt}
-        ]
-      }]
-    })
+    body:JSON.stringify({model:'claude-opus-4-5',max_tokens:4000,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:prompt}]}]})
   });
-
-  if(!response.ok){
-    const err=await response.json().catch(()=>({}));
-    throw new Error(err.error?.message||`APIエラー: ${response.status}`);
-  }
-  const data=await response.json();
-  const text=data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
-  // Strip markdown fences if present
-  const clean=text.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
-  return JSON.parse(clean);
+  if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error?.message||`APIエラー ${resp.status}`);}
+  const d=await resp.json();
+  const text=d.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+  return JSON.parse(text.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim());
 }
 
 // ─── Preview ──────────────────────────────────────────
 function renderPreview(data){
   const keys=['optics','space','domestic','intl'];
+  const tags={optics:'光学',space:'宇宙',domestic:'国内政治',intl:'海外政治'};
   keys.forEach((k,i)=>{
-    const panel=document.getElementById(`pp${i}`);
-    panel.innerHTML='';
+    const panel=document.getElementById(`pp${i}`);panel.innerHTML='';
     const items=data[k]?.items||[];
     if(!items.length){panel.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px">データなし</div>';return;}
     items.forEach((item,idx)=>{
-      const div=document.createElement('div');div.className='pnews-item';
-      div.innerHTML=`
-        <div class="pnews-meta">
-          <span class="ptag">${item.tag||k}</span>
-          <span class="psrc">${item.sourceLabel||''}</span>
-        </div>
+      const div=document.createElement('div');div.className='pnews';
+      div.innerHTML=`<div class="pnews-meta"><span class="ptag">${item.tag||tags[k]}</span><span class="psrc">${item.sourceLabel||''}</span></div>
         <div class="pttl">${item.title}</div>
         <div class="pdetail">${item.detail}</div>
-        ${item.insight?`<div class="pinsight">${item.insight}</div>`:''}
+        ${item.insight?`<div class="pins">${item.insight}</div>`:''}
         <div class="purl-row">
-          <input type="url" placeholder="ソースURLを入力（任意）" value="${item.source||''}"
-            oninput="updateSource('${k}',${idx},this.value)">
+          <input class="purl-inp" type="url" placeholder="ソースURL（任意）" value="${item.source||''}" oninput="updateSource('${k}',${idx},this.value)">
           <button class="del-btn" onclick="deleteItem('${k}',${idx})">🗑</button>
         </div>`;
       panel.appendChild(div);
     });
-    // Add new item button
-    const addDiv=document.createElement('div');
-    addDiv.innerHTML=`<button class="btn btn-outline" style="font-size:11px;padding:6px 14px;margin-top:4px" onclick="addItem('${k}')">＋ 手動で追加</button>`;
-    panel.appendChild(addDiv);
+    const add=document.createElement('div');
+    add.innerHTML=`<button class="btn btn-outline" style="font-size:11px;padding:6px 14px;margin-top:4px" onclick="addItem('${k}')">＋ 手動追加</button>`;
+    panel.appendChild(add);
   });
 }
-
 function switchPrev(i,btn){
   document.querySelectorAll('.tp-btn').forEach(b=>b.classList.remove('act'));
   document.querySelectorAll('.preview-panel').forEach(p=>p.classList.remove('act'));
-  btn.classList.add('act');
-  document.getElementById(`pp${i}`).classList.add('act');
+  btn.classList.add('act');document.getElementById(`pp${i}`).classList.add('act');
 }
-
-function updateSource(key,idx,val){
-  if(extractedData?.data?.[key]?.items?.[idx])
-    extractedData.data[key].items[idx].source=val;
-}
-function deleteItem(key,idx){
-  if(extractedData?.data?.[key]?.items){
-    extractedData.data[key].items.splice(idx,1);
-    renderPreview(extractedData.data);
-  }
-}
-function addItem(key){
-  if(!extractedData?.data?.[key])return;
-  extractedData.data[key].items.push({tag:key==='optics'?'光学':key==='space'?'宇宙':key==='domestic'?'国内政治':'海外政治',sourceLabel:'',title:'（タイトルを入力）',detail:'（詳細を入力）',insight:'',source:''});
+function updateSource(k,idx,v){if(extractedData?.data?.[k]?.items?.[idx])extractedData.data[k].items[idx].source=v;}
+function deleteItem(k,idx){if(extractedData?.data?.[k]?.items){extractedData.data[k].items.splice(idx,1);renderPreview(extractedData.data);}}
+function addItem(k){
+  if(!extractedData?.data?.[k])return;
+  const tags={optics:'光学',space:'宇宙',domestic:'国内政治',intl:'海外政治'};
+  extractedData.data[k].items.push({tag:tags[k]||k,sourceLabel:'',title:'（タイトルを入力）',detail:'（詳細を入力）',insight:'',source:''});
   renderPreview(extractedData.data);
 }
 
-// ─── Save / Export ────────────────────────────────────
-function saveData(){
+// ─── Prepare upload ───────────────────────────────────
+function prepareUpload(){
   if(!extractedData){showStatus('saveStatus','抽出データがありません','err');return;}
   const ds=extractedData.date;
-  // Save day data
+
+  // Save locally as backup
   localStorage.setItem(`news_${ds}`,JSON.stringify(extractedData.data));
-  // Update index
   let idx;
   try{idx=JSON.parse(localStorage.getItem('news_index')||'{"dates":[]}')}catch{idx={dates:[]};}
   if(!idx.dates.includes(ds)){idx.dates.push(ds);idx.dates.sort();}
   localStorage.setItem('news_index',JSON.stringify(idx));
-  showStatus('saveStatus','✅ 保存しました！閲覧者ページ（index.html）を開くと反映されています。','ok');
   refreshDatesList();
+
+  // Build Claude message
+  const newsJson=JSON.stringify(extractedData.data,null,2);
+  const idxJson=JSON.stringify(idx,null,2);
+  const newsB64=btoa(unescape(encodeURIComponent(newsJson)));
+  const idxB64=btoa(unescape(encodeURIComponent(idxJson)));
+
+  let audioInfo='音声なし';
+  const pri=audioFiles.full||audioFiles.tech||audioFiles.pol;
+  if(pri) audioInfo=`あり（${pri.name}）`;
+
+  const msg=`Google Driveにニュースデータを保存してください。
+
+【フォルダID】${FOLDER_ID}
+【インデックスファイルID】${INDEX_ID}
+【対象日付】${ds}
+【音声ファイル】${audioInfo}
+
+【作業内容】
+1. フォルダ（ID: ${FOLDER_ID}）内に「${ds}」という名前のサブフォルダを作成
+2. そのサブフォルダに "index.json" というファイルを作成し、以下のBase64をデコードした内容を保存してください
+3. ルートの index.json（ID: ${INDEX_ID}）を、以下のインデックスBase64をデコードした内容で上書き更新してください
+
+【ニュースデータ Base64】
+${newsB64}
+
+【インデックス更新データ Base64】
+${idxB64}`;
+
+  document.getElementById('copyArea').textContent=msg;
+  document.getElementById('pasteBox').style.display='block';
+  showStatus('saveStatus','✅ 準備完了！下のメッセージをコピーしてClaudeに貼り付けてください。','ok');
+  document.getElementById('pasteBox').scrollIntoView({behavior:'smooth'});
+}
+
+function copyMessage(){
+  const text=document.getElementById('copyArea').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('copyBtn');
+    btn.textContent='✓ コピーしました！';
+    btn.style.background='var(--green)';
+    setTimeout(()=>{btn.textContent='📋 メッセージをコピー';btn.style.background='';},2500);
+  }).catch(()=>{
+    // Fallback
+    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    document.getElementById('copyBtn').textContent='✓ コピーしました！';
+  });
 }
 
 function exportJSON(){
   if(!extractedData){showStatus('saveStatus','抽出データがありません','err');return;}
-  const ds=extractedData.date;
   const blob=new Blob([JSON.stringify(extractedData.data,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${ds}_index.json`;a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${extractedData.date}_index.json`;a.click();
 }
 
-function exportInstructions(){
-  const ds=extractedData?.date||'YYYY-MM-DD';
-  const msg=`【サーバー配置手順】
-
-1. ダウンロードしたJSONファイルを以下のパスに配置してください：
-   data/${ds}/index.json
-
-2. data/index.json を以下の形式で更新してください：
-   {
-     "dates": ["${ds}", "...過去の日付..."]
-   }
-
-3. PDFファイルを以下に配置（任意）：
-   data/${ds}/tech_report.pdf
-   data/${ds}/politics_report.pdf
-
-4. 音声ファイルを以下に配置（任意）：
-   data/${ds}/audio.mp3
-
-5. JSON内のPDF・音声URLを実際のパスに更新してください。
-
-※ ローカル確認には Live Server 等のHTTPサーバーが必要です。`;
-  alert(msg);
-}
-
-// ─── Dates List ───────────────────────────────────────
+// ─── Dates list ───────────────────────────────────────
 function refreshDatesList(){
   const el=document.getElementById('datesList');
   let idx;
@@ -625,14 +540,12 @@ function refreshDatesList(){
     try{const d=JSON.parse(localStorage.getItem(`news_${ds}`)||'{}');cnt=Object.values(d).reduce((s,v)=>s+(v?.items?.length||0),0);}catch{}
     const div=document.createElement('div');div.className='date-item';
     const d=new Date(ds+'T00:00:00');
-    div.innerHTML=`<span class="date-item-lbl">${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${ds}）</span>
+    div.innerHTML=`<span class="date-item-lbl">${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日</span>
       <span class="date-item-cnt">${cnt}トピック</span>
-      <button class="btn btn-outline" style="padding:4px 10px;font-size:11px" onclick="loadExisting('${ds}')">編集</button>
-      <button class="del-btn" onclick="deleteDate('${ds}')">🗑</button>`;
+      <button class="btn btn-outline" style="padding:4px 10px;font-size:11px" onclick="loadExisting('${ds}')">編集</button>`;
     el.appendChild(div);
   });
 }
-
 function loadExisting(ds){
   try{
     const data=JSON.parse(localStorage.getItem(`news_${ds}`));
@@ -642,36 +555,13 @@ function loadExisting(ds){
     document.getElementById('previewCard').style.display='block';
     document.getElementById('saveCard').style.display='block';
     document.getElementById('previewCard').scrollIntoView({behavior:'smooth'});
-  }catch(e){alert('データの読み込みに失敗しました');}
-}
-
-function deleteDate(ds){
-  if(!confirm(`${ds} のデータを削除しますか？`))return;
-  localStorage.removeItem(`news_${ds}`);
-  let idx;
-  try{idx=JSON.parse(localStorage.getItem('news_index')||'{"dates":[]}')}catch{idx={dates:[]};}
-  idx.dates=idx.dates.filter(d=>d!==ds);
-  localStorage.setItem('news_index',JSON.stringify(idx));
-  refreshDatesList();
-}
-
-function clearAll(){
-  if(!confirm('すべての保存データを削除しますか？'))return;
-  let idx;
-  try{idx=JSON.parse(localStorage.getItem('news_index')||'{"dates":[]}')}catch{idx={dates:[]};}
-  idx.dates.forEach(ds=>localStorage.removeItem(`news_${ds}`));
-  localStorage.removeItem('news_index');
-  refreshDatesList();
+  }catch{alert('データ読み込みに失敗しました');}
 }
 
 // ─── Helpers ──────────────────────────────────────────
-function showStatus(id,msg,type){
-  const el=document.getElementById(id);
-  el.textContent=msg;el.className=`status-box show ${type}`;
-}
-function setProgress(v){
-  document.getElementById('progressFill').style.width=v+'%';
-}
+function showStatus(id,msg,type){const el=document.getElementById(id);el.textContent=msg;el.className=`status-box show ${type}`;}
+function showBar(v){document.getElementById('progressBar').style.display=v?'block':'none';if(!v)setProgress(0);}
+function setProgress(v){document.getElementById('progressFill').style.width=v+'%';}
 </script>
 </body>
 </html>
