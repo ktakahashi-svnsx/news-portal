@@ -65,7 +65,7 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .pdf-btn{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;padding:6px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:10px;font-weight:700;font-family:inherit;transition:opacity .15s;text-decoration:none}
 .pdf-btn:hover{opacity:.85}
 .pdf-btn.off{background:#d1d5db;cursor:not-allowed;pointer-events:none}
-.audio-card{background:#fafafa;border:1px solid var(--border);border-radius:9px;padding:9px 10px}
+.audio-card{background:#fafafa;border:1px solid var(--border);border-radius:9px;padding:9px 10px}.audio-card iframe{width:100%;height:80px;border:none;border-radius:6px;display:block}
 .audio-top{display:flex;align-items:center;gap:8px;margin-bottom:7px}
 .audio-ico{width:30px;height:30px;background:#f3e8ff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .audio-name{font-size:10px;color:#374151;line-height:1.4}
@@ -479,38 +479,24 @@ function renderPDFs(pdfs,ds){
     document.getElementById(pdf.type==='tech'?'pdfTechName':'pdfPolName').textContent=pdf.sublabel||pdf.label;
   });
 }
-function toAudioSrc(url) {
-  if (!url) return '';
-  // Google Drive の各種URL形式を直接再生可能なURLに変換
-  // 形式1: https://drive.google.com/file/d/FILE_ID/view
-  let m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (m) return `https://docs.google.com/uc?export=open&id=${m[1]}`;
-  // 形式2: https://drive.google.com/uc?export=download&id=FILE_ID
-  m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m) return `https://docs.google.com/uc?export=open&id=${m[1]}`;
-  // 形式3: https://docs.google.com/uc?export=open&id=FILE_ID（既に正しい）
-  if (url.includes('docs.google.com/uc')) return url;
-  // それ以外はそのまま使用
-  return url;
-}
-
 function renderAudio(audio){
   const wrap = document.getElementById('audioWrap');
   if (!audio || !audio.url) {
     wrap.innerHTML = '<div class="audio-none">音声なし</div>';
     return;
   }
-  const src = toAudioSrc(audio.url);
-  wrap.innerHTML = `
-    <audio controls style="width:100%;height:28px;" preload="none">
-      <source src="${src}" type="audio/mpeg">
-      <source src="${src}" type="audio/mp4">
-      <source src="${src}" type="audio/wav">
-      お使いのブラウザは音声再生に対応していません。
-    </audio>
-    <div style="font-size:9px;color:var(--muted);margin-top:4px;word-break:break-all;">
-      <a href="${src}" target="_blank" style="color:var(--blue)">🎙 別タブで開く</a>
-    </div>`;
+  const url = audio.url;
+  // Google DriveのpreviewURL（/preview末尾）→ iframeで埋め込む
+  const isPreview = url.includes('/preview') || url.includes('drive.google.com/file/d/');
+  if (isPreview) {
+    // /preview形式に統一
+    let previewUrl = url;
+    const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (m) previewUrl = 'https://drive.google.com/file/d/' + m[1] + '/preview';
+    wrap.innerHTML = '<iframe src="' + previewUrl + '" width="100%" height="80" frameborder="0" allow="autoplay" style="border-radius:6px;"></iframe>';
+  } else {
+    wrap.innerHTML = '<audio controls style="width:100%;height:28px;" preload="none"><source src="' + url + '"></audio>';
+  }
 }
 
 // ─── Tabs ─────────────────────────────────────────────
