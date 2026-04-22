@@ -242,31 +242,37 @@ const THEMES=[
   {key:'intl',    label:'海外政治',cls:'t3', kws:['米中','欧州','地政学','輸出規制','外交']},
 ];
 const PAL=['#dc2626','#2563eb','#059669','#f59e0b','#7c3aed','#0891b2'];
-let curDate=null, availDates=[], calY, calM, allRows=[], allChartRows=[];
+let curDate=null, availDates=[], calY, calM, allRows=[], allChartRows=[], allMediaRows=[];
 const CI={};
 
 // ─── CSV parser ───────────────────────────────────────
 function parseCSV(text) {
-  const lines = text.trim().split(/\r?\n/);
-  if (!lines.length) return [];
-  const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g,'').trim());
+  // Normalize \r\n (Windows/Google Sheets) to \n
+  const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const lines = normalized.trim().split('\n').filter(l => l.trim());
+  if (lines.length < 2) return [];
+  const headers = parseCSVLine(lines[0]);
   return lines.slice(1).map(line => {
-    // Handle quoted fields with commas inside
-    const fields = [];
-    let cur = '', inQ = false;
-    for (let i = 0; i < line.length; i++) {
-      const c = line[i];
-      if (c === '"' && !inQ) { inQ = true; }
-      else if (c === '"' && inQ && line[i+1] === '"') { cur += '"'; i++; }
-      else if (c === '"' && inQ) { inQ = false; }
-      else if (c === ',' && !inQ) { fields.push(cur); cur = ''; }
-      else { cur += c; }
-    }
-    fields.push(cur);
+    const fields = parseCSVLine(line);
     const obj = {};
     headers.forEach((h, i) => { obj[h] = (fields[i] || '').trim(); });
     return obj;
-  }).filter(r => r.date);
+  }).filter(r => r.date && r.date.match(/^\d{4}-\d{2}-\d{2}$/));
+}
+
+function parseCSVLine(line) {
+  const fields = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"' && !inQ) { inQ = true; }
+    else if (c === '"' && inQ && line[i+1] === '"') { cur += '"'; i++; }
+    else if (c === '"' && inQ) { inQ = false; }
+    else if (c === ',' && !inQ) { fields.push(cur); cur = ''; }
+    else { cur += c; }
+  }
+  fields.push(cur);
+  return fields.map(f => f.trim());
 }
 
 // ─── Load from Sheets ─────────────────────────────────
@@ -300,6 +306,16 @@ async function loadFromSheets() {
         if (cr.ok) {
           const ct = await cr.text();
           if (!ct.startsWith('<!')) allChartRows = parseCSV(ct);
+        }
+      } catch {}
+
+      // Media sheet (PDF/audio URLs)
+      try {
+        const mediaUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=media`;
+        const mr = await fetch(mediaUrl);
+        if (mr.ok) {
+          const mt = await mr.text();
+          if (!mt.startsWith('<!')) allMediaRows = parseCSV(mt);
         }
       } catch {}
 
@@ -356,6 +372,7 @@ function loadDate(ds) {
   // Filter rows for this date
   const dayRows = allRows.filter(r => r.date === ds);
   const dayCharts = allChartRows.filter(r => r.date === ds);
+  const dayMedia = allMediaRows.find(r => r.date === ds) || null;
 
   // Build data structure from CSV rows
   const data = {optics:{items:[],charts:[]},space:{items:[],charts:[]},domestic:{items:[],charts:[]},intl:{items:[],charts:[]}};
@@ -385,6 +402,14 @@ function loadDate(ds) {
       }
     } catch {}
   });
+  // Inject media URLs into data
+  if (dayMedia) {
+    data.pdfs = [
+      {label:'技術系レポート', sublabel:'光学・光アプリ ＋ 宇宙・防衛・核融合', url: dayMedia.pdf_tech_url||'', type:'tech'},
+      {label:'政治情勢レポート', sublabel:'国内政治 ＋ 海外政治', url: dayMedia.pdf_pol_url||'', type:'politics'},
+    ];
+    data.audio = dayMedia.audio_url ? {url: dayMedia.audio_url, name:'音声ポッドキャスト'} : null;
+  }
   renderAll(data, ds);
 }
 

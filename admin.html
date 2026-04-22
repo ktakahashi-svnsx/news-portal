@@ -205,6 +205,36 @@ input:focus{outline:none;border-color:var(--red)}
         <div class="upload-box-ico">🎙</div><div class="upload-box-lbl">総合</div><div class="upload-box-hint">MP3/M4A</div><div class="upload-box-file" id="aFullName"></div></div>
     </div>
     <div class="status-box" id="audioStatus"></div>
+
+    <!-- Drive自動スキャン案内 -->
+    <div style="margin-top:14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:16px 18px">
+      <div style="font-size:12px;font-weight:700;color:#065f46;margin-bottom:8px">
+        ☁️ PDFと音声はGoogle Driveフォルダに置くだけ！
+      </div>
+      <div style="font-size:11px;color:#374151;line-height:2;margin-bottom:12px">
+        以下のルールでファイルを <strong>日付フォルダ</strong> に置いてください。<br>
+        その後、Claudeに「スキャンして」と送るだけで自動反映されます。
+      </div>
+      <div style="background:#fff;border:1px solid #d1fae5;border-radius:8px;padding:12px 14px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#065f46;margin-bottom:8px">📁 フォルダ構造（例：2026-04-22）</div>
+        <div style="font-family:monospace;font-size:11px;line-height:2;color:#374151">
+          news-portal-data/<br>
+          └── <strong>2026-04-22</strong>/<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;├── <strong>tech.pdf</strong>　　　← 技術系レポート<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;├── <strong>politics.pdf</strong>　← 政治情勢レポート<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;└── <strong>audio.mp3</strong>　　← 音声解説（mp3/m4a/wav）
+        </div>
+      </div>
+      <div style="font-size:10px;color:#6b7280;line-height:1.7">
+        ※ ファイル名は <code>tech.pdf</code>・<code>politics.pdf</code>・<code>audio.mp3</code>（または .m4a/.wav）で固定<br>
+        ※ 日付フォルダは <strong><a href="https://drive.google.com/drive/folders/1wABDwoTT4rIT2E_ZqHASiO0N2713tXx3" target="_blank" style="color:var(--blue)">news-portal-dataフォルダ</a></strong> 内に作成してください<br>
+        ※ Claudeとのチャットで「<strong>2026-04-22 をスキャンして</strong>」と送信するだけで反映完了
+      </div>
+    </div>
+    <!-- hidden inputs for compatibility -->
+    <input type="hidden" id="pdfTechUrl" value="">
+    <input type="hidden" id="pdfPolUrl" value="">
+    <input type="hidden" id="audioUrlInput" value="">
   </div>
 
   <!-- Step 5: Preview -->
@@ -394,11 +424,14 @@ function prepareMessage(){
   });
   const pri=audioFiles.full||audioFiles.tech||audioFiles.pol;
   const audioInfo=pri?pri.name:'なし';
+  // Media URLs (user fills in after uploading to Drive)
+  const pdfTechUrl = document.getElementById('pdfTechUrl')?.value?.trim()||'';
+  const pdfPolUrl  = document.getElementById('pdfPolUrl')?.value?.trim()||'';
+  const audioUrl   = document.getElementById('audioUrlInput')?.value?.trim()||'';
   const msg=`Google スプレッドシートにニュースデータを追加してください。
 
 【スプレッドシートID】${SHEET_ID}
 【対象日付】${ds}
-【音声】${audioInfo}
 
 【ニュース記事データ（TSV形式）】
 以下の行を「articles」シートに追加してください（ヘッダー行：date / section / tag / source_label / title / detail / insight / url）:
@@ -407,6 +440,10 @@ ${rows.map(r=>r.join('\t')).join('\n')}
 【チャートデータ（TSV形式）】
 以下の行を「charts」シートに追加してください（ヘッダー行：date / section / title / type / unit / labels_json / data_json）:
 ${chartsRows.map(r=>r.join('\t')).join('\n')}
+
+【メディアデータ（TSV形式）】
+以下の行を「media」シートに追加してください（ヘッダー行：date / pdf_tech_url / pdf_pol_url / audio_url）。シートがなければ作成してください:
+${ds}\t${pdfTechUrl}\t${pdfPolUrl}\t${audioUrl}
 
 【インデックス更新】
 「index」シートに日付 ${ds} を追加してください（ヘッダー行：date）。既に存在する場合はスキップ。
