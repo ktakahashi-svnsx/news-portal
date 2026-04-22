@@ -229,7 +229,7 @@ function getCsvUrl() {
   const saved = localStorage.getItem('sheet_csv_url');
   if (saved) return saved;
   // デフォルト：articlesシートをCSV公開
-　return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0`;
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=articles`;
 }
 function getChartsCsvUrl() {
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=charts`;
@@ -271,37 +271,53 @@ function parseCSV(text) {
 
 // ─── Load from Sheets ─────────────────────────────────
 async function loadFromSheets() {
-  try {
-    // Use gviz endpoint which supports CORS
-    const url = getCsvUrl();
-    const r = await fetch(url);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const text = await r.text();
-    allRows = parseCSV(text);
+  const statusEl = document.getElementById('sheetStatus');
+  const setupEl  = document.getElementById('sheetSetup');
 
-    // Extract unique dates
-    availDates = [...new Set(allRows.map(r => r.date))].sort();
+  // Try 3 URL patterns in order
+  const urlPatterns = [
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=articles`,
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`,
+    getCsvUrl(), // user-saved custom URL
+  ];
 
-    // Try charts sheet
+  let lastErr = '';
+  for (const url of urlPatterns) {
     try {
-      const cr = await fetch(getChartsCsvUrl());
-      if (cr.ok) allChartRows = parseCSV(await cr.text());
-    } catch {}
+      const r = await fetch(url);
+      if (!r.ok) { lastErr = `HTTP ${r.status} (${url})`; continue; }
+      const text = await r.text();
+      if (!text || text.trim().startsWith('<!')) { lastErr = 'HTMLが返却されました（公開設定を確認してください）'; continue; }
+      allRows = parseCSV(text);
+      if (!allRows.length) { lastErr = 'データ0件（シート名・列名を確認してください）'; continue; }
 
-    const el = document.getElementById('sheetStatus');
-    el.textContent = `✓ スプレッドシート接続済み（${allRows.length}件）`;
-    el.className = 'sheet-status ok';
-    document.getElementById('sheetSetup').style.display = 'none';
-    return true;
-  } catch(e) {
-    console.warn('Sheet load failed:', e.message);
-    // Show setup panel if URL not configured
-    document.getElementById('sheetSetup').style.display = 'block';
-    const el = document.getElementById('sheetStatus');
-    el.textContent = '⚠ スプレッドシートを「ウェブに公開」してください';
-    el.className = 'sheet-status err';
-    return false;
+      availDates = [...new Set(allRows.map(r => r.date).filter(Boolean))].sort();
+
+      // Charts sheet
+      try {
+        const chartUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=charts`;
+        const cr = await fetch(chartUrl);
+        if (cr.ok) {
+          const ct = await cr.text();
+          if (!ct.startsWith('<!')) allChartRows = parseCSV(ct);
+        }
+      } catch {}
+
+      statusEl.textContent = `✓ スプレッドシート接続済み（記事${allRows.length}件 / ${availDates.length}日分）`;
+      statusEl.className = 'sheet-status ok';
+      setupEl.style.display = 'none';
+      return true;
+    } catch(e) {
+      lastErr = e.message;
+    }
   }
+
+  // All failed
+  console.warn('Sheet load failed:', lastErr);
+  statusEl.innerHTML = `⚠ 読み込み失敗：${lastErr}<br><small>スプレッドシートの「共有」→「リンクを知っている全員」に設定してください</small>`;
+  statusEl.className = 'sheet-status err';
+  setupEl.style.display = 'block';
+  return false;
 }
 
 function saveSheetUrl() {
