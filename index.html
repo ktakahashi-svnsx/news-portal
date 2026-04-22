@@ -16,8 +16,6 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
-
-/* Loading */
 #loading{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s}
 #loading.out{opacity:0;pointer-events:none}
 .ld-logo{width:52px;height:52px;background:linear-gradient(135deg,var(--red),#f87171);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;margin-bottom:18px;animation:ldp 1.4s ease-in-out infinite}
@@ -26,8 +24,6 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .ld-bar{width:160px;height:3px;background:#f3f4f6;border-radius:2px;overflow:hidden}
 .ld-fill{height:100%;background:var(--red);border-radius:2px;animation:ldf 1.6s ease-in-out infinite}
 @keyframes ldf{0%{width:0;margin-left:0}50%{width:100%;margin-left:0}100%{width:0;margin-left:100%}}
-
-/* Header */
 .hdr{background:var(--white);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;padding:0 20px;gap:12px;position:sticky;top:0;z-index:200;box-shadow:0 1px 6px rgba(0,0,0,.06)}
 .hdr-logo{width:34px;height:34px;background:linear-gradient(135deg,var(--red),#f87171);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;flex-shrink:0}
 .hdr-title h1{font-size:14px;font-weight:700;line-height:1.2;font-family:'Oswald',sans-serif;letter-spacing:.03em}
@@ -35,11 +31,7 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .hdr-right{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
 .hdr-live{width:7px;height:7px;border-radius:50%;background:var(--red);animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-
-/* Layout */
 .wrap{display:flex;flex:1;min-height:0}
-
-/* Sidebar */
 .side{width:var(--sidebar-w);flex-shrink:0;background:var(--white);border-right:1px solid var(--border);overflow-y:auto}
 .side-inner{padding:14px 12px;display:flex;flex-direction:column;gap:14px}
 .side-date-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
@@ -47,8 +39,6 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .side-badge{display:none;align-items:center;gap:4px;font-size:10px;color:var(--red);font-weight:600;margin-top:4px}
 .side-badge.on{display:flex}
 .side-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--red)}
-
-/* Calendar */
 .cal{border:1px solid var(--border);border-radius:10px;overflow:hidden}
 .cal-hd{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#fafafa;border-bottom:1px solid var(--border)}
 .cal-hd-lbl{font-size:12px;font-weight:700;font-family:'Oswald',sans-serif}
@@ -66,10 +56,7 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .cal-leg span{display:flex;align-items:center;gap:3px}
 .leg-dot{width:5px;height:5px;border-radius:50%;background:var(--red)}
 .leg-sq{width:9px;height:9px;border-radius:2px;outline:1.5px solid var(--red)}
-
 .sb-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:8px}
-
-/* PDF */
 .pdf-card{background:#fafafa;border:1px solid var(--border);border-radius:9px;padding:9px 10px;margin-bottom:7px}
 .pdf-card-top{display:flex;align-items:center;gap:8px;margin-bottom:7px}
 .pdf-ico{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
@@ -78,18 +65,15 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .pdf-btn{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;padding:6px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:10px;font-weight:700;font-family:inherit;transition:opacity .15s;text-decoration:none}
 .pdf-btn:hover{opacity:.85}
 .pdf-btn.off{background:#d1d5db;cursor:not-allowed;pointer-events:none}
-
-/* Audio */
 .audio-card{background:#fafafa;border:1px solid var(--border);border-radius:9px;padding:9px 10px}
 .audio-top{display:flex;align-items:center;gap:8px;margin-bottom:7px}
 .audio-ico{width:30px;height:30px;background:#f3e8ff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .audio-name{font-size:10px;color:#374151;line-height:1.4}
 .audio-none{font-size:10px;color:var(--muted);text-align:center;padding:2px 0}
-
-/* Main */
+/* Reload notice */
+.reload-notice{display:none;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 10px;font-size:10px;color:#92400e;line-height:1.5;margin-top:-6px}
+.reload-notice.on{display:block}
 .main{flex:1;min-width:0;padding:16px 20px;overflow-y:auto}
-
-/* Tabs */
 .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
 .tab{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:22px;border:1px solid var(--border);background:var(--white);font-size:12px;font-weight:500;color:#374151;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit}
 .tab:hover{border-color:var(--red);color:var(--red)}
@@ -101,19 +85,13 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .tab-ico{font-size:13px}
 .tab-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;border-radius:9px;font-size:10px;font-weight:700;background:rgba(0,0,0,.12)}
 .tab.act .tab-badge{background:rgba(255,255,255,.28)}
-
-/* Panel */
 .panel{display:none}.panel.act{display:block;animation:fin .2s}
 @keyframes fin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-
-/* Kw bar */
 .kw-bar{background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .kw-ico{color:var(--muted);font-size:12px;flex-shrink:0}
 .kw-tag{font-size:11px;color:#4b5563;cursor:pointer;padding:1px 0;border-bottom:1px dashed transparent;transition:all .12s}
 .kw-tag:hover{color:var(--red);border-bottom-color:var(--red)}
 .kw-sep{color:#d1d5db}
-
-/* News grid */
 .ngrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px}
 @media(max-width:1080px){.ngrid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.ngrid{grid-template-columns:1fr}}
@@ -136,8 +114,6 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .nurl a:hover{color:var(--red)}
 .no-news{grid-column:1/-1;text-align:center;padding:52px 20px;color:var(--muted)}
 .no-news-ico{font-size:44px;margin-bottom:10px;opacity:.35}
-
-/* Charts */
 .charts-sec{margin-bottom:8px}
 .charts-hd{font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .charts-hd::before{content:'';width:3px;height:14px;background:var(--red);border-radius:2px}
@@ -145,10 +121,13 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .chart-card-ttl{font-size:12px;font-weight:700;color:#374151;margin-bottom:2px}
 .chart-card-sub{font-size:10px;color:var(--muted);margin-bottom:12px}
 .chart-wrap{height:220px;position:relative}
+/* Sheet status */
+.sheet-status{font-size:10px;padding:5px 8px;border-radius:6px;margin-top:8px;display:none}
+.sheet-status.ok{display:block;background:#ecfdf5;color:#065f46}
+.sheet-status.err{display:block;background:var(--red-lt);color:#991b1b}
 </style>
 </head>
 <body>
-
 <div id="loading">
   <div class="ld-logo">☀</div>
   <div class="ld-text">ニュースを読み込んでいます...</div>
@@ -161,10 +140,7 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
     <h1>光・宇宙・政治 ニュースポータル</h1>
     <p>光学 ／ 宇宙・防衛 ／ 国内政治 ／ 海外政治</p>
   </div>
-  <div class="hdr-right">
-    <div class="hdr-live"></div>
-    <span>日別ニュース</span>
-  </div>
+  <div class="hdr-right"><div class="hdr-live"></div><span>日別ニュース</span></div>
 </header>
 
 <div class="wrap">
@@ -174,6 +150,7 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
         <div class="side-date-lbl">選択中の日付</div>
         <div class="side-date-val" id="sideDate">—</div>
         <div class="side-badge" id="sideBadge">レポートあり（<span id="topicCnt">0</span>トピック）</div>
+        <div class="sheet-status" id="sheetStatus"></div>
       </div>
 
       <div class="cal">
@@ -195,6 +172,16 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
         </div>
       </div>
 
+      <!-- Sheet設定（初回のみ） -->
+      <div id="sheetSetup" style="display:none">
+        <div class="sb-lbl">スプレッドシート設定</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:8px;line-height:1.6">
+          スプレッドシートを「ウェブに公開」するとデータが表示されます。
+        </div>
+        <input id="csvUrl" type="text" placeholder="CSVのURLを貼り付け" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:10px;margin-bottom:6px">
+        <button onclick="saveSheetUrl()" style="width:100%;padding:6px;background:var(--red);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">設定を保存</button>
+      </div>
+
       <div>
         <div class="sb-lbl">ダウンロード</div>
         <div class="pdf-card">
@@ -210,10 +197,7 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
       <div>
         <div class="sb-lbl">音声解説</div>
         <div class="audio-card">
-          <div class="audio-top">
-            <div class="audio-ico">🎙</div>
-            <div class="audio-name">音声ポッドキャスト</div>
-          </div>
+          <div class="audio-top"><div class="audio-ico">🎙</div><div class="audio-name">音声ポッドキャスト</div></div>
           <div id="audioWrap"><div class="audio-none">音声なし</div></div>
         </div>
       </div>
@@ -235,22 +219,104 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 </div>
 
 <script>
+// ─── Config ───────────────────────────────────────────
+// スプレッドシートID（固定）
+const SHEET_ID = '1D5GDqcSrJj6_SGk3OlnTDqoBL0su03t9Yi5McGTb578';
+
+// Google Sheets CSV公開URL（シート名「articles」）
+// ※スプレッドシートを「ファイル→共有→ウェブに公開」してから使う
+function getCsvUrl() {
+  const saved = localStorage.getItem('sheet_csv_url');
+  if (saved) return saved;
+  // デフォルト：articlesシートをCSV公開
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=articles`;
+}
+function getChartsCsvUrl() {
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=charts`;
+}
+
 const THEMES=[
-  {key:'optics',  label:'光学',    cls:'t0',kws:['フォトニクス','シリコンフォトニクス','光電融合','LiDAR','CPO']},
-  {key:'space',   label:'宇宙',    cls:'t1',kws:['衛星','防衛','核融合','レーザー','宇宙開発']},
-  {key:'domestic',label:'国内政治',cls:'t2',kws:['国会','閣議','与党','野党','経済安保']},
-  {key:'intl',    label:'海外政治',cls:'t3',kws:['米中','欧州','地政学','輸出規制','外交']},
+  {key:'optics',  label:'光学',    cls:'t0', kws:['フォトニクス','シリコンフォトニクス','光電融合','LiDAR','CPO']},
+  {key:'space',   label:'宇宙',    cls:'t1', kws:['衛星','防衛','核融合','レーザー','宇宙開発']},
+  {key:'domestic',label:'国内政治',cls:'t2', kws:['国会','閣議','与党','野党','経済安保']},
+  {key:'intl',    label:'海外政治',cls:'t3', kws:['米中','欧州','地政学','輸出規制','外交']},
 ];
 const PAL=['#dc2626','#2563eb','#059669','#f59e0b','#7c3aed','#0891b2'];
-let curDate=null,availDates=[],calY,calM;
+let curDate=null, availDates=[], calY, calM, allRows=[], allChartRows=[];
 const CI={};
+
+// ─── CSV parser ───────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if (!lines.length) return [];
+  const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g,'').trim());
+  return lines.slice(1).map(line => {
+    // Handle quoted fields with commas inside
+    const fields = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"' && !inQ) { inQ = true; }
+      else if (c === '"' && inQ && line[i+1] === '"') { cur += '"'; i++; }
+      else if (c === '"' && inQ) { inQ = false; }
+      else if (c === ',' && !inQ) { fields.push(cur); cur = ''; }
+      else { cur += c; }
+    }
+    fields.push(cur);
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = (fields[i] || '').trim(); });
+    return obj;
+  }).filter(r => r.date);
+}
+
+// ─── Load from Sheets ─────────────────────────────────
+async function loadFromSheets() {
+  try {
+    // Use gviz endpoint which supports CORS
+    const url = getCsvUrl();
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const text = await r.text();
+    allRows = parseCSV(text);
+
+    // Extract unique dates
+    availDates = [...new Set(allRows.map(r => r.date))].sort();
+
+    // Try charts sheet
+    try {
+      const cr = await fetch(getChartsCsvUrl());
+      if (cr.ok) allChartRows = parseCSV(await cr.text());
+    } catch {}
+
+    const el = document.getElementById('sheetStatus');
+    el.textContent = `✓ スプレッドシート接続済み（${allRows.length}件）`;
+    el.className = 'sheet-status ok';
+    document.getElementById('sheetSetup').style.display = 'none';
+    return true;
+  } catch(e) {
+    console.warn('Sheet load failed:', e.message);
+    // Show setup panel if URL not configured
+    document.getElementById('sheetSetup').style.display = 'block';
+    const el = document.getElementById('sheetStatus');
+    el.textContent = '⚠ スプレッドシートを「ウェブに公開」してください';
+    el.className = 'sheet-status err';
+    return false;
+  }
+}
+
+function saveSheetUrl() {
+  const url = document.getElementById('csvUrl').value.trim();
+  if (!url) return;
+  localStorage.setItem('sheet_csv_url', url);
+  init();
+}
 
 // ─── Calendar ─────────────────────────────────────────
 function initCal(){const n=new Date();calY=n.getFullYear();calM=n.getMonth();renderCal();}
 function renderCal(){
   document.getElementById('calLbl').textContent=`${calY}年${calM+1}月`;
-  const first=new Date(calY,calM,1).getDay(),days=new Date(calY,calM+1,0).getDate();
-  const today=new Date(),grid=document.getElementById('calDates');
+  const first=new Date(calY,calM,1).getDay(), days=new Date(calY,calM+1,0).getDate();
+  const today=new Date(), grid=document.getElementById('calDates');
   grid.innerHTML='';
   for(let i=0;i<first;i++){const el=document.createElement('div');el.className='cal-cell';grid.appendChild(el);}
   for(let d=1;d<=days;d++){
@@ -265,50 +331,49 @@ function renderCal(){
 document.getElementById('calPrev').onclick=()=>{calM--;if(calM<0){calM=11;calY--;}renderCal();};
 document.getElementById('calNext').onclick=()=>{calM++;if(calM>11){calM=0;calY++;}renderCal();};
 
-// ─── Data: Try Drive index first, then localStorage ───
-async function loadIndex(){
-  // 1. Try Drive-sourced data via localStorage (saved by admin via Claude)
-  try{
-    const stored=localStorage.getItem('news_index');
-    if(stored){
-      const idx=JSON.parse(stored);
-      availDates=idx.dates||[];
-      renderCal();
-      if(availDates.length){await loadDate(availDates[availDates.length-1]);return;}
-    }
-  }catch(e){}
-  // 2. Try static file (server deploy)
-  try{
-    const r=await fetch('data/index.json');
-    if(!r.ok)throw 0;
-    const idx=await r.json();
-    availDates=idx.dates||[];
-    renderCal();
-    if(availDates.length){await loadDate(availDates[availDates.length-1]);return;}
-  }catch{}
-  // 3. Demo
-  loadDemo();
-}
+// ─── Load date ────────────────────────────────────────
+function loadDate(ds) {
+  curDate = ds; renderCal();
+  const d = new Date(ds+'T00:00:00');
+  document.getElementById('sideDate').textContent = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
 
-async function loadDate(ds){
-  curDate=ds;renderCal();
-  const d=new Date(ds+'T00:00:00');
-  document.getElementById('sideDate').textContent=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
-  // Try localStorage first
-  try{
-    const stored=localStorage.getItem(`news_${ds}`);
-    if(stored){renderAll(JSON.parse(stored),ds);return;}
-  }catch{}
-  // Try static file
-  try{
-    const r=await fetch(`data/${ds}/index.json`);
-    if(!r.ok)throw 0;
-    renderAll(await r.json(),ds);
-  }catch{renderAll(null,ds);}
+  // Filter rows for this date
+  const dayRows = allRows.filter(r => r.date === ds);
+  const dayCharts = allChartRows.filter(r => r.date === ds);
+
+  // Build data structure from CSV rows
+  const data = {optics:{items:[],charts:[]},space:{items:[],charts:[]},domestic:{items:[],charts:[]},intl:{items:[],charts:[]}};
+  dayRows.forEach(row => {
+    const sec = row.section;
+    if (!data[sec]) return;
+    data[sec].items.push({
+      tag: row.tag || '',
+      sourceLabel: row.source_label || '',
+      title: row.title || '',
+      detail: row.detail || '',
+      insight: row.insight || '',
+      source: row.url || '',
+    });
+  });
+  dayCharts.forEach(row => {
+    const sec = row.section;
+    if (!data[sec]) return;
+    try {
+      const labels = JSON.parse(row.labels_json || '[]');
+      let rawData = JSON.parse(row.data_json || '[]');
+      // rawData could be array of numbers or array of {label,data} objects
+      if (Array.isArray(rawData) && rawData.length && typeof rawData[0] === 'object') {
+        data[sec].charts.push({title:row.title,type:row.type||'bar',dataset_label:row.unit||'',labels,datasets:rawData});
+      } else {
+        data[sec].charts.push({title:row.title,type:row.type||'bar',dataset_label:row.unit||'',labels,data:rawData});
+      }
+    } catch {}
+  });
+  renderAll(data, ds);
 }
 
 // ─── Render ───────────────────────────────────────────
-function renderAll(data,ds){
+function renderAll(data, ds) {
   let total=0;
   THEMES.forEach((t,i)=>{
     const d=data?.[t.key]||null;
@@ -341,16 +406,14 @@ function renderNews(i,theme,data){
     card.innerHTML=`<div class="ncard-body">
       <div class="ncard-meta"><span class="ntag ${theme.cls}">${item.tag||theme.label}</span><span class="nmedia">${item.sourceLabel||''}</span></div>
       <div class="ntitle">${item.title}</div>
-      <div class="nbody">${item.detail}</div>
-      ${ins}${url}
+      <div class="nbody">${item.detail}</div>${ins}${url}
     </div>`;
     grid.appendChild(card);
   });
 }
 function renderCharts(i,theme,data){
   const wrap=document.getElementById(`ch${i}`);wrap.innerHTML='';
-  const charts=data?.charts||[];
-  if(!charts.length)return;
+  const charts=data?.charts||[];if(!charts.length)return;
   const hd=document.createElement('div');hd.className='charts-hd';hd.textContent='市場予測・データチャート';wrap.appendChild(hd);
   charts.forEach(ch=>{
     const card=document.createElement('div');card.className='chart-card';
@@ -362,17 +425,17 @@ function renderCharts(i,theme,data){
     const isBar=ch.type==='bar';
     let datasets;
     if(ch.datasets){datasets=ch.datasets.map((ds,j)=>({label:ds.label,data:ds.data,borderColor:PAL[j%PAL.length],backgroundColor:PAL[j%PAL.length]+(isBar?'44':'18'),borderWidth:2,tension:0.4,fill:!isBar,pointRadius:3,pointBackgroundColor:PAL[j%PAL.length]}));}
-    else{datasets=[{label:ch.dataset_label||'',data:ch.data,borderColor:PAL[0],backgroundColor:PAL[0]+(isBar?'44':'18'),borderWidth:2,tension:0.4,fill:!isBar,pointRadius:3,pointBackgroundColor:PAL[0]}];}
-    CI[cid]=new Chart(ctx,{type:isBar?'bar':'line',data:{labels:ch.labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!ch.datasets,position:'bottom',labels:{font:{size:10,family:'Noto Sans JP'},padding:12,boxWidth:12}},tooltip:{backgroundColor:'#fff',borderColor:'#e5e7eb',borderWidth:1,titleColor:'#374151',bodyColor:'#374151',titleFont:{size:11},bodyFont:{size:11}}},scales:{x:{grid:{color:'#f3f4f6'},ticks:{color:'#6b7280',font:{size:10}},border:{color:'#e5e7eb'}},y:{grid:{color:'#f3f4f6'},ticks:{color:'#6b7280',font:{size:10}},border:{color:'#e5e7eb'}}}}});
+    else{datasets=[{label:ch.dataset_label||'',data:ch.data||[],borderColor:PAL[0],backgroundColor:PAL[0]+(isBar?'44':'18'),borderWidth:2,tension:0.4,fill:!isBar,pointRadius:3,pointBackgroundColor:PAL[0]}];}
+    CI[cid]=new Chart(ctx,{type:isBar?'bar':'line',data:{labels:ch.labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:!!ch.datasets,position:'bottom',labels:{font:{size:10,family:'Noto Sans JP'},padding:12,boxWidth:12}},tooltip:{backgroundColor:'#fff',borderColor:'#e5e7eb',borderWidth:1,titleColor:'#374151',bodyColor:'#374151'}},scales:{x:{grid:{color:'#f3f4f6'},ticks:{color:'#6b7280',font:{size:10}},border:{color:'#e5e7eb'}},y:{grid:{color:'#f3f4f6'},ticks:{color:'#6b7280',font:{size:10}},border:{color:'#e5e7eb'}}}}});
   });
 }
 function renderPDFs(pdfs,ds){
   const tBtn=document.getElementById('pdfTechBtn'),pBtn=document.getElementById('pdfPolBtn');
-  const tNm=document.getElementById('pdfTechName'),pNm=document.getElementById('pdfPolName');
   [tBtn,pBtn].forEach(b=>{b.classList.add('off');b.removeAttribute('href');b.removeAttribute('download');});
   (pdfs||[]).forEach(pdf=>{
-    const btn=pdf.type==='tech'?tBtn:pBtn,nm=pdf.type==='tech'?tNm:pNm;
-    btn.classList.remove('off');btn.href=pdf.url;btn.setAttribute('download','');nm.textContent=pdf.sublabel||pdf.label;
+    const btn=pdf.type==='tech'?tBtn:pBtn;
+    btn.classList.remove('off');btn.href=pdf.url;btn.setAttribute('download','');
+    document.getElementById(pdf.type==='tech'?'pdfTechName':'pdfPolName').textContent=pdf.sublabel||pdf.label;
   });
 }
 function renderAudio(audio){
@@ -391,36 +454,32 @@ document.querySelectorAll('.tab').forEach(btn=>{
   });
 });
 
-// ─── Demo ─────────────────────────────────────────────
-function loadDemo(){
-  const today=new Date();
-  const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  availDates=[-2,-1,0].map(n=>{const d=new Date(today);d.setDate(d.getDate()+n);return fmt(d);});
-  curDate=availDates[availDates.length-1];renderCal();
-  document.getElementById('sideDate').textContent=`${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
-  renderAll({
-    optics:{keywords:['フォトニクス','シリコンフォトニクス','光電融合','LiDAR','CPO'],items:[
-      {tag:'光学',sourceLabel:'PR TIMES',title:'MolexがTeramountを買収　CPO量産の障壁を解消',detail:'Molexがシリコンフォトニクス向け基板式ファイバーツーチップ接続を開発するTeramountを買収。AIデータセンター向けCPOの量産スケーラビリティを大幅に向上させる。',insight:'CPO実用化の障壁が解消に向かい、光インターフェース市場をMolexが主導する展開。',source:'https://prtimes.jp/'},
-      {tag:'光学',sourceLabel:'SDxCentral',title:'nEye.ai、AIインフラ向け光スイッチングで8,000万ドル調達',detail:'光コンポーネントメーカーnEye.aiが8,000万ドルを調達。AlphabetとMicrosoftが参加。シリコンフォトニクス・MEMS・CMOSを単一チップに統合する。',insight:'GPUクラスター拡大に伴うボトルネック解消が加速。国内関連メーカーへの波及が期待される。',source:'https://www.sdxcentral.com/'},
-      {tag:'光学',sourceLabel:'豊田自動織機',title:'3D-LiDAR搭載の自動運転フォークリフトを発売',detail:'豊田自動織機が3D-LiDARでトラック荷台を自動処理する自動運転フォークリフトを発売。物流の「2024年問題」への対応策として注目。',insight:'産業用LiDAR需要が急拡大。センサー・AI処理技術を持つメーカーへの発注が増える。',source:'https://www.toyota-shokki.co.jp/'},
-    ],charts:[{title:'フォトニクス市場予測（2023–2030）',type:'line',dataset_label:'十億USD',labels:['2023','2024','2025','2026','2027','2028','2029','2030'],datasets:[{label:'フォトニクス全体',data:[18,22,27,33,40,49,58,68]},{label:'シリコンフォトニクス',data:[4,6,9,13,18,25,33,43]},{label:'LiDAR',data:[2,3,5,7,10,14,18,24]}]}]},
-    space:{items:[
-      {tag:'宇宙',sourceLabel:'Defense News',title:'ペンタゴン、次世代SDA衛星コンステレーション調達先を選定',detail:'米宇宙開発局が低軌道衛星ネットワーク第2トランシェの製造契約候補を絞り込んだ。総契約額は推定60億ドル超。',insight:'光学偵察衛星・宇宙光通信の需要が拡大し、国内光学部品メーカーへの波及が期待される。',source:'#'},
-      {tag:'核融合',sourceLabel:'FT Energy',title:'Commonwealth Fusion、18億ドル調達——商業炉建設前倒しへ',detail:'高温超電導マグネット活用のコンパクト核融合炉開発を進めるCFS社が新たな資金調達を完了。',insight:'核融合関連レーザー・光学診断技術の需要が増大。精密光学系サプライヤーに商機。',source:'#'},
-    ],charts:[{title:'宇宙産業投資額推移（十億ドル）',type:'bar',dataset_label:'十億ドル',labels:['2021','2022','2023','2024','2025E'],data:[14,17,23,28,35]}]},
-    domestic:{items:[
-      {tag:'経済安保',sourceLabel:'官報',title:'経済安保推進法改正案、衆院委員会で審議入り',detail:'量子技術・宇宙・先端半導体を新たな「特定重要技術」に追加する改正案の委員会審議が開始。',insight:'国内光・量子技術企業の政府調達機会が拡大。認定企業は競争優位を得る。',source:'#'},
-    ],charts:[{title:'内閣支持率推移（%）',type:'line',dataset_label:'%',labels:['1月','2月','3月','4月','5月','6月'],data:[48,45,43,47,44,46]}]},
-    intl:{items:[
-      {tag:'米中',sourceLabel:'Reuters',title:'米商務省、AI半導体の輸出管理規則を改訂——対象範囲を拡大',detail:'米商務省がEARを改訂し、先端AI向けGPU・NPUの中国向け輸出規制対象スペックを引き下げた。',insight:'光電融合チップも規制対象に入る可能性があり、輸出管理体制の整備が急務。',source:'#'},
-    ],charts:[{title:'地政学リスク指数（地域別）',type:'bar',dataset_label:'リスクスコア',labels:['東アジア','中東','欧州','南アジア','その他'],data:[72,68,45,38,25]}]},
-    pdfs:[{label:'技術系レポート',sublabel:'光学・光アプリ ＋ 宇宙・防衛・核融合',url:'#',type:'tech'},{label:'政治情勢レポート',sublabel:'国内政治 ＋ 海外政治',url:'#',type:'politics'}],
-    audio:null,
-  },curDate);
-}
-
 // ─── Init ─────────────────────────────────────────────
-(async()=>{initCal();await loadIndex();setTimeout(()=>document.getElementById('loading').classList.add('out'),600);})();
+async function init() {
+  initCal();
+  const ok = await loadFromSheets();
+  if (ok && availDates.length) {
+    renderCal();
+    loadDate(availDates[availDates.length-1]);
+  } else if (!ok) {
+    // Fallback: localStorage
+    try {
+      const idx = JSON.parse(localStorage.getItem('news_index')||'{"dates":[]}');
+      availDates = idx.dates || [];
+      if (availDates.length) {
+        renderCal();
+        const ds = availDates[availDates.length-1];
+        curDate = ds; renderCal();
+        const d = new Date(ds+'T00:00:00');
+        document.getElementById('sideDate').textContent=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+        const stored = localStorage.getItem(`news_${ds}`);
+        if (stored) renderAll(JSON.parse(stored), ds);
+      }
+    } catch {}
+  }
+  setTimeout(()=>document.getElementById('loading').classList.add('out'), 700);
+}
+init();
 </script>
 </body>
 </html>
