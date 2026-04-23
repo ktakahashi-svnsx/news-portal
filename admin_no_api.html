@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理者ガイド（APIキー不要版）</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{--red:#dc2626;--green:#059669;--blue:#2563eb;--orange:#ea580c;--bg:#f1f3f6;--white:#fff;--border:#e2e5ea;--text:#111827;--muted:#6b7280}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);color:var(--text)}
+.hdr{background:var(--white);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.hdr-logo{width:34px;height:34px;background:linear-gradient(135deg,#059669,#34d399);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff}
+.hdr h1{font-size:14px;font-weight:700;font-family:'Oswald',sans-serif}
+.hdr-badge{margin-left:auto;background:#ecfdf5;color:var(--green);border:1px solid #a7f3d0;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
+.container{max-width:780px;margin:0 auto;padding:28px 20px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:18px}
+.card h2{font-size:14px;font-weight:700;font-family:'Oswald',sans-serif;margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.card-sub{font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.7}
+.step{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;color:#fff;font-size:11px;font-weight:700;flex-shrink:0}
+.r{background:var(--red)}.g{background:var(--green)}.b{background:var(--blue)}.o{background:var(--orange)}
+
+/* 比較テーブル */
+.compare{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px}
+.compare th{padding:9px 14px;text-align:left;border-bottom:2px solid var(--border);font-weight:700}
+.compare td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.7}
+.compare .col-a{background:#fffbeb;width:48%}
+.compare .col-b{background:#f0fdf4;width:48%}
+.compare .col-hd-a{background:#fef3c7;color:#92400e;font-weight:700}
+.compare .col-hd-b{background:#dcfce7;color:#166534;font-weight:700}
+.badge-old{display:inline-block;background:#fef2f2;color:var(--red);border:1px solid #fecaca;font-size:10px;padding:1px 6px;border-radius:8px;font-weight:700}
+.badge-new{display:inline-block;background:#ecfdf5;color:var(--green);border:1px solid #a7f3d0;font-size:10px;padding:1px 6px;border-radius:8px;font-weight:700}
+
+/* フロー */
+.flow{display:flex;align-items:center;gap:0;overflow-x:auto;padding:4px 0 14px}
+.fi{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:82px}
+.fi-ico{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:21px}
+.fi-r{background:#fef2f2}.fi-b{background:#eff6ff}.fi-p{background:#f5f3ff}.fi-g{background:#ecfdf5}.fi-o{background:#fff7ed}
+.fi-lbl{font-size:10px;font-weight:600;text-align:center;line-height:1.3}
+.fa{font-size:20px;color:#d1d5db;margin:0 2px 14px;flex-shrink:0}
+
+table.tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+table.tbl th{background:#f8f9fb;font-weight:700;padding:8px 12px;text-align:left;border:1px solid var(--border)}
+table.tbl td{padding:8px 12px;border:1px solid var(--border);line-height:1.7;vertical-align:top}
+table.tbl tr:nth-child(even) td{background:#fafafa}
+code{background:#f3f4f6;padding:1px 5px;border-radius:4px;font-family:monospace;font-size:11px;color:var(--red)}
+.note{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:11px;color:#92400e;line-height:1.7;margin-top:10px}
+.tip{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;padding:10px 14px;font-size:11px;color:#065f46;line-height:1.7;margin-top:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none;transition:opacity .15s;margin-right:8px;margin-top:10px}
+.btn:hover{opacity:.85}
+.bb{background:var(--blue);color:#fff}.bg{background:var(--green);color:#fff}.bo{background:var(--white);color:var(--text);border:1px solid var(--border)}
+.tree{background:#f8fafc;border:1px solid var(--border);border-radius:9px;padding:14px 16px;font-family:monospace;font-size:12px;line-height:2.1}
+.tc{color:#2563eb;font-weight:700}.tt{color:#059669}.tp{color:#dc2626}.ta{color:#7c3aed}.tg{color:#9ca3af;font-size:11px;font-family:'Noto Sans JP',sans-serif}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-logo">⚙</div>
+  <h1>管理者ガイド — APIキー不要版</h1>
+  <span class="hdr-badge">✓ APIキー不要</span>
+</header>
+<div class="container">
+
+<!-- 旧vs新 比較 -->
+<div class="card">
+  <h2>🔄 方式の変更点</h2>
+  <table class="compare">
+    <tr>
+      <th class="col-hd-a">旧方式 <span class="badge-old">Anthropic API使用</span></th>
+      <th class="col-hd-b">新方式 <span class="badge-new">APIキー不要</span></th>
+    </tr>
+    <tr>
+      <td class="col-a">PDFをDriveに置く → AIが自動でニュース抽出</td>
+      <td class="col-b">Googleフォームにニュース内容を手入力</td>
+    </tr>
+    <tr>
+      <td class="col-a">APIキーが必要（有料）</td>
+      <td class="col-b">完全無料・Googleアカウントのみ</td>
+    </tr>
+    <tr>
+      <td class="col-a">タイムアウトのリスクあり</td>
+      <td class="col-b">フォーム送信と同時に即時反映・安定動作</td>
+    </tr>
+    <tr>
+      <td class="col-a">PDF・音声の自動スキャンあり</td>
+      <td class="col-b">PDF・音声の自動スキャンも継続あり ✓</td>
+    </tr>
+  </table>
+  <div class="tip">📱 <strong>フォームはスマホからも入力可能です。</strong>ブックマークしておくと毎日の更新が楽になります。</div>
+</div>
+
+<!-- 毎日のフロー -->
+<div class="card">
+  <h2>📋 毎日の作業フロー</h2>
+  <p class="card-sub">Googleフォームへの入力と、Driveへのファイルアップロードの2つだけです。</p>
+  <div class="flow">
+    <div class="fi"><div class="fi-ico fi-o">📝</div><div class="fi-lbl">フォームに<br>記事入力</div></div><div class="fa">→</div>
+    <div class="fi"><div class="fi-ico fi-g">✅</div><div class="fi-lbl">送信と同時に<br>スプレッドシートへ</div></div><div class="fa">→</div>
+    <div class="fi"><div class="fi-ico fi-g">🌐</div><div class="fi-lbl">サイトに<br>即時反映</div></div>
+  </div>
+  <div class="flow">
+    <div class="fi"><div class="fi-ico fi-r">📁</div><div class="fi-lbl">日付フォルダに<br>PDF・音声</div></div><div class="fa">→</div>
+    <div class="fi"><div class="fi-ico fi-p">⏱</div><div class="fi-lbl">10分以内に<br>自動スキャン</div></div><div class="fa">→</div>
+    <div class="fi"><div class="fi-ico fi-g">🌐</div><div class="fi-lbl">サイトに<br>自動反映</div></div>
+  </div>
+</div>
+
+<!-- セットアップ -->
+<div class="card">
+  <h2><span class="step g">1</span> 初回セットアップ（一度だけ）</h2>
+  <table class="tbl">
+    <tr><th width="30">手順</th><th>操作内容</th></tr>
+    <tr><td>①</td><td><a href="https://docs.google.com/spreadsheets/d/1D5GDqcSrJj6_SGk3OlnTDqoBL0su03t9Yi5McGTb578/edit" target="_blank" style="color:var(--blue)">ニュースポータル管理DB</a> を開き「拡張機能」→「Apps Script」</td></tr>
+    <tr><td>②</td><td>既存コードを全削除し、<code>news_portal_no_api.gs</code> の内容を貼り付けて保存</td></tr>
+    <tr><td>③</td><td>関数選択で「<code>createForm</code>」を実行 → Googleフォームが自動作成される</td></tr>
+    <tr><td>④</td><td>関数選択で「<code>setupTriggers</code>」を実行 → 権限を許可</td></tr>
+    <tr><td>⑤</td><td>「<code>showFormUrl</code>」を実行してログに表示されたURLをブックマーク</td></tr>
+    <tr><td>⑥</td><td>スプレッドシートの共有設定：「リンクを知っている全員」→「閲覧者」に変更</td></tr>
+  </table>
+  <div class="note">③④の実行時に「権限の確認」ダイアログが出たら「詳細」→「（安全ではないページ）に移動」→「許可」を選択してください。</div>
+</div>
+
+<!-- フォーム入力 -->
+<div class="card">
+  <h2><span class="step b">2</span> 毎日の記事入力</h2>
+  <p class="card-sub">ブックマークしたフォームURLを開いて入力します。1回の送信で1記事です。複数記事は「別の回答を送信」で続けて入力できます。</p>
+  <table class="tbl">
+    <tr><th>項目</th><th>入力内容</th><th>例</th></tr>
+    <tr><td>対象日付</td><td>記事の対象日</td><td>2026/04/23</td></tr>
+    <tr><td>セクション</td><td>カテゴリ選択</td><td>optics（光学・光アプリ）</td></tr>
+    <tr><td>タグ</td><td>短いラベル</td><td>光学、フォトニクス</td></tr>
+    <tr><td>情報ソース・媒体名</td><td>出典（省略可）</td><td>日経新聞、Reuters</td></tr>
+    <tr><td>ニュースタイトル</td><td>記事タイトル</td><td>○○社が△△を発表</td></tr>
+    <tr><td>詳細説明</td><td>2〜5文の説明</td><td>本文を要約して入力</td></tr>
+    <tr><td>インサイト・考察</td><td>1〜2文の考察（省略可）</td><td>業界への影響など</td></tr>
+    <tr><td>ソースURL</td><td>元記事のURL（省略可）</td><td>https://...</td></tr>
+  </table>
+  <div class="tip">💡 送信後すぐにサイトに反映されます（index.html をリロードして確認）。</div>
+</div>
+
+<!-- PDF・音声 -->
+<div class="card">
+  <h2><span class="step r">3</span> PDF・音声のアップロード</h2>
+  <p class="card-sub">記事入力とは独立して、PDFと音声ファイルを自動スキャンします。</p>
+  <div class="tree">
+    <span class="tc">news-portal-data/</span><br>
+    &nbsp;&nbsp;└── <span class="tc">2026-04-23/</span> <span class="tg">← 日付フォルダ（YYYY-MM-DD形式）</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="tt">tech.pdf</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tg">← 技術系レポートPDF</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="tp">politics.pdf</span> &nbsp;<span class="tg">← 政治情勢レポートPDF</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="ta">audio.mp3</span> &nbsp;&nbsp;&nbsp;&nbsp;<span class="tg">← 音声解説（10分以内に自動反映）</span>
+  </div>
+  <div class="note">ファイル名は固定です：<code>tech.pdf</code> / <code>politics.pdf</code> / <code>audio.mp3</code>（または .m4a / .wav）</div>
+  <a class="btn bb" href="https://drive.google.com/drive/folders/1wABDwoTT4rIT2E_ZqHASiO0N2713tXx3" target="_blank">☁️ Driveフォルダを開く</a>
+</div>
+
+<!-- トラブル -->
+<div class="card">
+  <h2><span class="step o">+</span> 管理用関数</h2>
+  <table class="tbl">
+    <tr><th>関数名</th><th>用途</th></tr>
+    <tr><td><code>showFormUrl()</code></td><td>フォームURLをログに表示（ブックマーク忘れた場合）</td></tr>
+    <tr><td><code>checkStatus()</code></td><td>各シートのデータ件数とフォーム状態を確認</td></tr>
+    <tr><td><code>scanNow()</code></td><td>Driveメディアスキャンを今すぐ手動実行</td></tr>
+    <tr><td><code>deleteArticlesByDate('2026-04-22')</code></td><td>指定日付の記事を全削除（入力ミスのリセット）</td></tr>
+    <tr><td><code>createForm()</code></td><td>フォームを再作成（フォームを誤削除した場合）</td></tr>
+    <tr><td><code>setupTriggers()</code></td><td>トリガーを再設定</td></tr>
+  </table>
+</div>
+
+<!-- リンク集 -->
+<div class="card">
+  <h2>🔗 リンク集</h2>
+  <a class="btn bb" href="https://drive.google.com/drive/folders/1wABDwoTT4rIT2E_ZqHASiO0N2713tXx3" target="_blank">☁️ Driveフォルダ</a>
+  <a class="btn bg" href="https://docs.google.com/spreadsheets/d/1D5GDqcSrJj6_SGk3OlnTDqoBL0su03t9Yi5McGTb578/edit" target="_blank">📊 スプレッドシート</a>
+  <a class="btn bo" href="index.html">🌐 閲覧ページ</a>
+</div>
+
+</div>
+</body>
+</html>
