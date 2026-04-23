@@ -68,8 +68,8 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .audio-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .audio-ico{width:30px;height:30px;background:#f3e8ff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .audio-name{font-size:10px;color:#374151;line-height:1.4}
-.audio-none{font-size:10px;color:var(--muted);text-align:center;padding:4px 0}
-.audio-card iframe{width:100%;height:80px;border:none;border-radius:6px;display:block}
+.audio-none{font-size:10px;color:var(--muted);text-align:center;padding:4px 0}.aplayer{background:#fff;border:1px solid #e9d5ff;border-radius:8px;padding:8px 10px}.aplayer-row1{display:flex;align-items:center;gap:8px;margin-bottom:6px}.aplay-btn{width:32px;height:32px;border-radius:50%;background:#7c3aed;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;color:#fff;font-size:13px}.aplay-btn:hover{background:#6d28d9}.aplay-btn:active{transform:scale(.93)}.amute-btn{width:26px;height:26px;border-radius:6px;background:none;border:1px solid #e9d5ff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;color:#7c3aed;font-size:12px}.amute-btn:hover{background:#f5f3ff}.atime{font-size:10px;color:var(--muted);flex-shrink:0;min-width:72px;text-align:right}.abar-wrap{position:relative;height:20px;display:flex;align-items:center;cursor:pointer}.abar-bg{width:100%;height:3px;background:#e9d5ff;border-radius:2px;pointer-events:none}.abar-fill{height:3px;background:#7c3aed;border-radius:2px;width:0%;transition:width .1s linear;pointer-events:none}.abar-thumb{width:11px;height:11px;border-radius:50%;background:#7c3aed;position:absolute;top:50%;transform:translate(-50%,-50%);pointer-events:none;transition:left .1s linear}.abar-hit{position:absolute;inset:0;cursor:pointer}.adrive-link{display:block;text-align:center;font-size:9px;color:#a78bfa;text-decoration:none;margin-top:4px}.adrive-link:hover{color:#7c3aed}
+
 .main{flex:1;min-width:0;padding:16px 20px;overflow-y:auto}
 .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
 .tab{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:22px;border:1px solid var(--border);background:var(--white);font-size:12px;font-weight:500;color:#374151;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit}
@@ -329,14 +329,100 @@ function renderPDFs(media){
 }
 function renderAudio(media){
   const wrap=document.getElementById('audioWrap');
-  if(!media?.audio_url){wrap.innerHTML='<div class="audio-none">音声なし</div>';return;}
-  const url=media.audio_url;
-  const m=url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)||url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if(m){
-    wrap.innerHTML=`<iframe src="https://drive.google.com/file/d/${m[1]}/preview" allow="autoplay"></iframe>`;
-  }else{
-    wrap.innerHTML=`<audio controls style="width:100%;height:28px;" preload="none"><source src="${url}"></audio>`;
+  if(!media||!media.audio_url){wrap.innerHTML='<div class="audio-none">音声なし</div>';return;}
+
+  const rawUrl=media.audio_url;
+  // DriveファイルIDを抽出してdirect-download URLを構築
+  const m=rawUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)||rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  const fileId=m?m[1]:null;
+  // 直接再生URL（Google Drive uc?export=open）
+  const playUrl=fileId
+    ?`https://docs.google.com/uc?export=open&id=${fileId}`
+    :rawUrl;
+  // Drive開くリンク
+  const driveUrl=fileId
+    ?`https://drive.google.com/file/d/${fileId}/view`
+    :rawUrl;
+
+  wrap.innerHTML=`
+    <div class="aplayer" id="apl">
+      <div class="aplayer-row1">
+        <button class="aplay-btn" id="aPlayBtn" title="再生/一時停止">▶</button>
+        <div class="abar-wrap" id="aBarWrap">
+          <div class="abar-bg"></div>
+          <div class="abar-fill" id="aFill"></div>
+          <div class="abar-thumb" id="aThumb" style="left:0%"></div>
+          <div class="abar-hit" id="aHit"></div>
+        </div>
+        <button class="amute-btn" id="aMuteBtn" title="ミュート">🔊</button>
+        <span class="atime" id="aTime">0:00 / -:--</span>
+      </div>
+      <a class="adrive-link" href="${driveUrl}" target="_blank" rel="noopener">☁ Driveで開く</a>
+    </div>`;
+
+  // Audio要素を生成（DOM外）
+  const audio=new Audio();
+  audio.preload='none';
+  audio.crossOrigin='anonymous';
+  audio.src=playUrl;
+
+  const playBtn =document.getElementById('aPlayBtn');
+  const muteBtn =document.getElementById('aMuteBtn');
+  const fill    =document.getElementById('aFill');
+  const thumb   =document.getElementById('aThumb');
+  const timeEl  =document.getElementById('aTime');
+  const barWrap =document.getElementById('aBarWrap');
+  const hit     =document.getElementById('aHit');
+
+  function fmt(s){
+    if(!isFinite(s))return'-:--';
+    const m=Math.floor(s/60),ss=Math.floor(s%60);
+    return m+':'+(ss<10?'0':'')+ss;
   }
+  function updateBar(){
+    const pct=audio.duration?audio.currentTime/audio.duration*100:0;
+    fill.style.width=pct+'%';
+    thumb.style.left=pct+'%';
+    timeEl.textContent=fmt(audio.currentTime)+' / '+fmt(audio.duration);
+  }
+
+  // 再生/一時停止
+  playBtn.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(audio.paused){audio.play().catch(()=>{});playBtn.textContent='⏸';}
+    else{audio.pause();playBtn.textContent='▶';}
+  });
+
+  // ミュート（独立したボタン）
+  muteBtn.addEventListener('click',function(e){
+    e.stopPropagation();
+    audio.muted=!audio.muted;
+    muteBtn.textContent=audio.muted?'🔇':'🔊';
+  });
+
+  // シークバー（hit領域だけで処理）
+  function seekTo(e){
+    const rect=barWrap.getBoundingClientRect();
+    const pct=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
+    if(audio.duration)audio.currentTime=pct*audio.duration;
+  }
+  let dragging=false;
+  hit.addEventListener('mousedown',function(e){
+    e.stopPropagation();
+    dragging=true;
+    seekTo(e);
+  });
+  document.addEventListener('mousemove',function(e){if(dragging)seekTo(e);});
+  document.addEventListener('mouseup',function(){dragging=false;});
+  // タッチ対応
+  hit.addEventListener('touchstart',function(e){e.stopPropagation();dragging=true;seekTo(e.touches[0]);},{passive:true});
+  document.addEventListener('touchmove',function(e){if(dragging)seekTo(e.touches[0]);},{passive:true});
+  document.addEventListener('touchend',function(){dragging=false;});
+
+  // 時間更新
+  audio.addEventListener('timeupdate',updateBar);
+  audio.addEventListener('loadedmetadata',updateBar);
+  audio.addEventListener('ended',function(){playBtn.textContent='▶';updateBar();});
 }
 document.querySelectorAll('.tab').forEach(btn=>{
   btn.addEventListener('click',()=>{
