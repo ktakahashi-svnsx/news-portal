@@ -411,6 +411,22 @@ function renderAudio(media){
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
+
+// ── タブ切替 ────────────────────────────────────────────
+function switchTab(idx){
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.classList.toggle('act', Number(t.dataset.i) === idx);
+  });
+  document.querySelectorAll('.panel').forEach(function(p,i){
+    p.classList.toggle('act', i === idx);
+  });
+}
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    switchTab(Number(t.dataset.i));
+  });
+});
+
 // v20260424054337
 (async()=>{
   initCal();
