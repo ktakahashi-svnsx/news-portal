@@ -250,8 +250,9 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 
 /* PC・タブレットではモバイルバーを非表示 */
 @media(min-width:701px){
-  .mobile-bar{display:none}
+  .mobile-bar{display:none!important}
   .audio-modal{display:none!important}
+  .cal-modal{display:none!important}
 }
 .ncard{background:var(--white);border:1px solid var(--border);border-radius:11px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s}
 .ncard:hover{box-shadow:0 4px 18px rgba(0,0,0,.08);transform:translateY(-2px)}
@@ -620,6 +621,10 @@ function renderCalModal(){
   const grid=document.getElementById('calModalGrid');
   const lbl=document.getElementById('calModalLbl');
   if(!grid||!lbl)return;
+  // calModalY/Mが未初期化の場合は現在日時で初期化
+  if(typeof calModalY==='undefined'||isNaN(calModalY)){
+    const n=new Date();calModalY=n.getFullYear();calModalM=n.getMonth();
+  }
   lbl.textContent=`${calModalY}年${calModalM+1}月`;
   grid.querySelectorAll('.cal-cell').forEach(e=>e.remove());
   const first=new Date(calModalY,calModalM,1).getDay();
