@@ -94,6 +94,105 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .ngrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px}
 @media(max-width:1080px){.ngrid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.ngrid{grid-template-columns:1fr}}
+
+/* ── スマホ最適化 ── */
+@media(max-width:700px){
+  /* サイドバーを非表示にして下部固定エリアに移行 */
+  .side{display:none}
+  .wrap{flex-direction:column}
+  .main{padding:10px 12px 120px}
+
+  /* ヘッダー簡略化 */
+  .hdr-title{font-size:13px}
+  .hdr-sub{display:none}
+
+  /* タブをスクロール可能な横並びに */
+  .tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+        padding-bottom:4px;gap:6px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex-shrink:0;padding:7px 12px;font-size:12px;white-space:nowrap}
+
+  /* ニュースカードを1列 */
+  .ngrid{grid-template-columns:1fr}
+  .ncard{border-radius:10px}
+  .ntitle{font-size:13px}
+  .nbody{font-size:12px;-webkit-line-clamp:3}
+
+  /* カレンダー */
+  .cal{width:100%}
+  .cal-cell{font-size:10px;padding:4px 1px}
+
+  /* スマホ用：下部固定メディアバー */
+  .mobile-bar{
+    display:flex;
+    position:fixed;bottom:0;left:0;right:0;
+    background:#fff;
+    border-top:1px solid #e5e7eb;
+    box-shadow:0 -2px 12px rgba(0,0,0,.10);
+    z-index:200;
+    padding:8px 10px env(safe-area-inset-bottom,8px);
+    gap:8px;
+    align-items:stretch;
+  }
+  /* 音声ボタン（大きく・押しやすく） */
+  .mb-audio-btn{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
+    background:#f5f0ff;border:2px solid #c4b5fd;border-radius:14px;
+    padding:12px 8px;cursor:pointer;min-height:56px;
+    font-size:13px;font-weight:700;color:#6d28d9;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .mb-audio-btn.has-audio{background:#7c3aed;border-color:#7c3aed;color:#fff}
+  .mb-audio-btn:active{opacity:.8;transform:scale(.97)}
+  .mb-audio-ico{font-size:22px}
+  .mb-audio-txt{font-size:11px;font-weight:600;line-height:1.3;text-align:center}
+  /* PDF2ボタン */
+  .mb-pdf-grp{display:flex;flex-direction:column;gap:4px;min-width:100px}
+  .mb-pdf-btn{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
+    background:#dc2626;border:none;border-radius:10px;
+    padding:0 8px;cursor:pointer;min-height:24px;
+    font-size:10px;font-weight:700;color:#fff;text-decoration:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .mb-pdf-btn.tech{background:#dc2626}
+  .mb-pdf-btn.pol{background:#2563eb}
+  .mb-pdf-btn.off{background:#d1d5db;pointer-events:none;cursor:not-allowed}
+  .mb-pdf-btn:active{opacity:.8}
+  /* 音声モーダル */
+  .audio-modal{
+    display:none;position:fixed;inset:0;z-index:300;
+    background:rgba(0,0,0,.55);align-items:flex-end;justify-content:center;
+  }
+  .audio-modal.open{display:flex}
+  .audio-modal-inner{
+    background:#fff;border-radius:20px 20px 0 0;
+    padding:20px 16px calc(24px + env(safe-area-inset-bottom,0px));
+    width:100%;max-width:600px;
+    animation:slideUp .25s ease;
+  }
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .audio-modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .audio-modal-ttl{font-size:15px;font-weight:700;color:#1f2937}
+  .audio-modal-close{width:32px;height:32px;border-radius:50%;background:#f3f4f6;
+                     border:none;cursor:pointer;font-size:16px;display:flex;
+                     align-items:center;justify-content:center;color:#6b7280}
+  .audio-modal iframe{width:100%;height:80px;border:none;border-radius:10px;display:block}
+  .audio-modal audio{width:100%;display:block;accent-color:#7c3aed;
+                     height:44px;border-radius:10px}
+  .audio-modal-drive{
+    display:block;text-align:center;margin-top:12px;
+    padding:12px;background:#f5f0ff;border-radius:10px;
+    font-size:13px;font-weight:600;color:#7c3aed;text-decoration:none;
+  }
+  .audio-modal-none{text-align:center;padding:20px;color:#9ca3af;font-size:13px}
+}
+
+/* PC・タブレットではモバイルバーを非表示 */
+@media(min-width:701px){
+  .mobile-bar{display:none}
+  .audio-modal{display:none!important}
+}
 .ncard{background:var(--white);border:1px solid var(--border);border-radius:11px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s}
 .ncard:hover{box-shadow:0 4px 18px rgba(0,0,0,.08);transform:translateY(-2px)}
 .ncard-body{padding:13px;flex:1;display:flex;flex-direction:column}
@@ -393,6 +492,19 @@ function parseLine(line){
 
 function renderAudio(media){
   const wrap=document.getElementById('audioWrap');
+  // スマホ用: ボタンと本体URLを保存
+  window._currentAudioMedia=media;
+  const mbBtn=document.getElementById('mbAudioBtn');
+  const mbTxt=document.getElementById('mbAudioTxt');
+  if(mbBtn&&mbTxt){
+    if(media&&media.audio_url){
+      mbBtn.classList.add('has-audio');
+      mbTxt.textContent='音声を再生';
+    }else{
+      mbBtn.classList.remove('has-audio');
+      mbTxt.textContent='音声なし';
+    }
+  }
   if(!media||!media.audio_url){
     wrap.innerHTML='<div class="audio-none">この日の音声解説はありません</div>';
     return;
@@ -412,6 +524,54 @@ function renderAudio(media){
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 
+
+// ── スマホ用 音声モーダル ─────────────────────────────────
+function openAudioModal(){
+  const modal=document.getElementById('audioModal');
+  const body=document.getElementById('audioModalBody');
+  const media=window._currentAudioMedia;
+  if(!modal||!body)return;
+  if(!media||!media.audio_url){
+    body.innerHTML='<div class="audio-modal-none">この日の音声解説はありません</div>';
+  }else{
+    const rawUrl=media.audio_url;
+    const m=rawUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)||rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    const fileId=m?m[1]:null;
+    if(fileId){
+      const previewUrl=`https://drive.google.com/file/d/${fileId}/preview`;
+      const driveUrl=`https://drive.google.com/file/d/${fileId}/view`;
+      body.innerHTML=`
+        <iframe src="${previewUrl}" allow="autoplay" allowfullscreen
+          style="width:100%;height:80px;border:none;border-radius:10px;display:block;background:#f5f0ff;">
+        </iframe>
+        <a class="audio-modal-drive" href="${driveUrl}" target="_blank" rel="noopener">
+          ☁ Google Driveで開く
+        </a>`;
+    }else{
+      body.innerHTML=`
+        <audio controls preload="metadata"
+          style="width:100%;display:block;accent-color:#7c3aed;height:44px;border-radius:10px;">
+          <source src="${rawUrl}">
+        </audio>
+        <a class="audio-modal-drive" href="${rawUrl}" target="_blank" rel="noopener">
+          ☁ 外部で開く
+        </a>`;
+    }
+  }
+  modal.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeAudioModal(e){
+  if(e&&e.target!==document.getElementById('audioModal')&&
+     !e.target.classList.contains('audio-modal-close'))return;
+  document.getElementById('audioModal').classList.remove('open');
+  document.body.style.overflow='';
+  // iframeを止めるため中身をリセット
+  setTimeout(()=>{
+    const b=document.getElementById('audioModalBody');
+    if(b)b.innerHTML='';
+  },300);
+}
 // ── タブ切替 ────────────────────────────────────────────
 function switchTab(idx){
   document.querySelectorAll('.tab').forEach(function(t){
@@ -439,5 +599,30 @@ document.querySelectorAll('.tab').forEach(function(t){
   setTimeout(()=>{ld.style.display='none';},600);
 })();
 </script>
+
+<!-- ── スマホ用 下部固定メディアバー ── -->
+<div class="mobile-bar" id="mobileBar">
+  <button class="mb-audio-btn" id="mbAudioBtn" onclick="openAudioModal()">
+    <span class="mb-audio-ico">🎙</span>
+    <span class="mb-audio-txt" id="mbAudioTxt">音声なし</span>
+  </button>
+  <div class="mb-pdf-grp">
+    <a class="mb-pdf-btn tech off" id="mbPdfTech" target="_blank">📘 技術PDF</a>
+    <a class="mb-pdf-btn pol off" id="mbPdfPol" target="_blank">📕 政治PDF</a>
+  </div>
+</div>
+
+<!-- ── 音声モーダル（スマホ用） ── -->
+<div class="audio-modal" id="audioModal" onclick="closeAudioModal(event)">
+  <div class="audio-modal-inner">
+    <div class="audio-modal-hd">
+      <span class="audio-modal-ttl">🎙 音声解説</span>
+      <button class="audio-modal-close" onclick="closeAudioModal()">✕</button>
+    </div>
+    <div id="audioModalBody">
+      <div class="audio-modal-none">この日の音声解説はありません</div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
