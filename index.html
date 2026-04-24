@@ -2,6 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>光・宇宙・政治 ニュースポータル</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,7 +46,7 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .cal-hd-lbl{font-size:12px;font-weight:700;font-family:'Oswald',sans-serif}
 .cal-nav{background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:0 4px;border-radius:5px;line-height:1;transition:background .1s}
 .cal-nav:hover{background:#f3f4f6;color:var(--text)}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);padding:6px 6px 8px;gap:2px}
+.cal-grid{display:grid!important;grid-template-columns:repeat(7,1fr)!important;padding:6px 6px 8px;gap:2px;width:100%;box-sizing:border-box}
 .cal-dh{text-align:center;font-size:9px;color:var(--muted);padding:2px 0;font-weight:600}
 .cal-cell{text-align:center;font-size:10px;color:#c9cdd5;padding:5px 1px;border-radius:5px;cursor:default;line-height:1;position:relative;transition:background .1s}
 .cal-cell.has{color:var(--text);cursor:pointer;font-weight:600}
@@ -68,8 +71,8 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .audio-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .audio-ico{width:30px;height:30px;background:#f3e8ff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .audio-name{font-size:10px;color:#374151;line-height:1.4}
-.audio-none{font-size:10px;color:var(--muted);text-align:center;padding:4px 0}
-.audio-card iframe{width:100%;height:80px;border:none;border-radius:6px;display:block}
+.audio-none{font-size:11px;color:var(--muted);text-align:center;padding:12px 0}.audio-card{background:#fafafa;border:1px solid var(--border);border-radius:9px;padding:10px;margin-bottom:0}.audio-card iframe{width:100%;height:80px;border:none;border-radius:6px;display:block}.aplayer{background:#f5f0ff;border:1.5px solid #c4b5fd;border-radius:10px;padding:12px 10px}.aplayer-title{font-size:10px;color:#6d28d9;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:5px}.aplayer-row1{display:flex;align-items:center;gap:8px;margin-bottom:10px}.aplay-btn{width:36px;height:36px;border-radius:50%;background:#7c3aed;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,transform .1s;color:#fff;font-size:15px;box-shadow:0 2px 6px rgba(124,58,237,.4)}.aplay-btn:hover{background:#6d28d9;transform:scale(1.05)}.aplay-btn:active{transform:scale(.95)}.atime-wrap{display:flex;flex-direction:column;flex:1;gap:6px}.abar-wrap{position:relative;height:28px;display:flex;align-items:center;cursor:pointer;border-radius:14px;background:#ede9fe;padding:0 2px}.abar-bg{width:100%;height:6px;background:#ddd6fe;border-radius:3px;pointer-events:none}.abar-fill{position:absolute;left:2px;height:6px;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:3px;width:0%;pointer-events:none;transition:width .1s linear}.abar-thumb{width:16px;height:16px;border-radius:50%;background:#7c3aed;position:absolute;top:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 1px 4px rgba(124,58,237,.5);transition:left .1s linear}.abar-hit{position:absolute;inset:0;cursor:pointer;border-radius:14px}.atime{font-size:10px;color:#6d28d9;font-weight:600;text-align:right;letter-spacing:.03em}.amute-btn{width:28px;height:28px;border-radius:7px;background:#ede9fe;border:1.5px solid #c4b5fd;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;color:#7c3aed;font-size:13px}.amute-btn:hover{background:#ddd6fe}.adrive-link{display:block;text-align:center;font-size:9px;color:#a78bfa;text-decoration:none;margin-top:6px;padding:3px;border-radius:4px}.adrive-link:hover{color:#7c3aed;background:#f5f3ff}
+
 .main{flex:1;min-width:0;padding:16px 20px;overflow-y:auto}
 .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
 .tab{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:22px;border:1px solid var(--border);background:var(--white);font-size:12px;font-weight:500;color:#374151;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit}
@@ -134,23 +137,19 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
     </div>
     <div class="cal">
       <div class="cal-hd"><button class="cal-nav" id="calPrev">‹</button><span class="cal-hd-lbl" id="calLbl"></span><button class="cal-nav" id="calNext">›</button></div>
-      <div class="cal-grid">
-        <div class="cal-dh">日</div><div class="cal-dh">月</div><div class="cal-dh">火</div><div class="cal-dh">水</div><div class="cal-dh">木</div><div class="cal-dh">金</div><div class="cal-dh">土</div>
-        <div id="calDates" style="display:contents"></div>
-      </div>
+      <div class="cal-grid" id="calGrid"><div class="cal-dh">日</div><div class="cal-dh">月</div><div class="cal-dh">火</div><div class="cal-dh">水</div><div class="cal-dh">木</div><div class="cal-dh">金</div><div class="cal-dh">土</div></div>
       <div class="cal-leg"><span><div class="leg-dot"></div>データあり</span><span><div class="leg-sq"></div>今日</span></div>
     </div>
     <div>
-      <div class="sb-lbl">PDFダウンロード</div>
-      <div class="pdf-card"><div class="pdf-card-top"><div class="pdf-ico t">📘</div><div class="pdf-name" id="pdfTechName">技術系レポート</div></div><a class="pdf-btn off" id="pdfTechBtn" target="_blank">⬇ ダウンロード</a></div>
-      <div class="pdf-card"><div class="pdf-card-top"><div class="pdf-ico p">📕</div><div class="pdf-name" id="pdfPolName">政治情勢レポート</div></div><a class="pdf-btn off" id="pdfPolBtn" target="_blank">⬇ ダウンロード</a></div>
-    </div>
-    <div>
-      <div class="sb-lbl">音声解説</div>
+      <div class="sb-lbl">🎙 音声解説</div>
       <div class="audio-card">
-        <div class="audio-top"><div class="audio-ico">🎙</div><div class="audio-name">ポッドキャスト</div></div>
         <div id="audioWrap"><div class="audio-none">音声なし</div></div>
       </div>
+    </div>
+    <div>
+      <div class="sb-lbl">📄 PDFダウンロード</div>
+      <div class="pdf-card"><div class="pdf-card-top"><div class="pdf-ico t">📘</div><div class="pdf-name" id="pdfTechName">技術系レポート</div></div><a class="pdf-btn off" id="pdfTechBtn" target="_blank">⬇ ダウンロード</a></div>
+      <div class="pdf-card"><div class="pdf-card-top"><div class="pdf-ico p">📕</div><div class="pdf-name" id="pdfPolName">政治情勢レポート</div></div><a class="pdf-btn off" id="pdfPolBtn" target="_blank">⬇ ダウンロード</a></div>
     </div>
   </div></aside>
   <main class="main">
@@ -204,37 +203,86 @@ function csvLine(l){
 }
 
 async function fetchSheet(name){
-  const r=await fetch(`${BASE}&sheet=${encodeURIComponent(name)}`);
+  // cache:'no-store'はCORSプリフライトを引き起こすため除去
+  // タイムスタンプパラメータでブラウザキャッシュを回避
+  const url=`${BASE}&sheet=${encodeURIComponent(name)}&_=${Date.now()}`;
+  // タイムアウト付きfetch（10秒）
+  const ctrl=new AbortController();
+  const tid=setTimeout(()=>ctrl.abort(),10000);
+  let r;
+  try{
+    r=await fetch(url,{signal:ctrl.signal});
+  }catch(e){
+    clearTimeout(tid);
+    if(e.name==='AbortError')throw new Error('タイムアウト（10秒）しました');
+    throw e;
+  }
+  clearTimeout(tid);
   if(!r.ok)throw new Error(`HTTP ${r.status}`);
   const t=await r.text();
-  if(t.trim().startsWith('<!'))throw new Error('HTMLが返却されました（スプレッドシートの共有設定を確認してください）');
+  if(t.trim().startsWith('<!'))throw new Error('スプレッドシートの共有設定を確認してください');
   return t;
 }
 
 async function loadAll(){
-  allRows=parseCSV(await fetchSheet('articles'));
+  const errEl=document.getElementById('connErr');
+  const okEl=document.getElementById('connOk');
+  // articles
+  try{allRows=parseCSV(await fetchSheet('articles'));}
+  catch(e){
+    allRows=[];
+    errEl.textContent='⚠ '+e.message;
+    errEl.classList.add('on');
+  }
+  // charts
   try{allChartRows=parseCSV(await fetchSheet('charts'));}catch(e){allChartRows=[];}
+  // media
   try{allMediaRows=parseCSV(await fetchSheet('media'));}catch(e){allMediaRows=[];}
-  availDates=[...new Set(allRows.map(r=>r.date))].sort();
-  const ok=document.getElementById('connOk');
-  ok.textContent=`✓ ${allRows.length}件 / ${availDates.length}日分`;
-  ok.classList.add('on');
+
+  // 日付リスト
+  const artDates=allRows.map(r=>r.date).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d));
+  const mediaDates=allMediaRows.map(r=>r.date).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d));
+  availDates=[...new Set([...artDates,...mediaDates])].sort();
+
+  if(allRows.length>0){
+    okEl.textContent=`✓ ${allRows.length}件 / ${availDates.length}日分`;
+    okEl.classList.add('on');
+  }
+  // カレンダー再描画・最新日付を表示
+  renderCal();
+  if(availDates.length>0)loadDate(availDates[availDates.length-1]);
 }
 
 // Calendar
 function initCal(){const n=new Date();calY=n.getFullYear();calM=n.getMonth();renderCal();}
 function renderCal(){
   document.getElementById('calLbl').textContent=`${calY}年${calM+1}月`;
-  const first=new Date(calY,calM,1).getDay(),days=new Date(calY,calM+1,0).getDate();
-  const today=new Date(),grid=document.getElementById('calDates');
-  grid.innerHTML='';
-  for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cal-cell';grid.appendChild(e);}
+  const first=new Date(calY,calM,1).getDay();
+  const days=new Date(calY,calM+1,0).getDate();
+  const today=new Date();
+  const todayStr=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const grid=document.getElementById('calGrid');
+  // 曜日ヘッダー(cal-dh)は残し、日付セル(cal-cell)だけ削除して再生成
+  const oldCells=grid.querySelectorAll('.cal-cell');
+  oldCells.forEach(e=>e.remove());
+  // 月初の空白
+  for(let i=0;i<first;i++){
+    const e=document.createElement('div');
+    e.className='cal-cell';
+    grid.appendChild(e);
+  }
+  // 日付
   for(let d=1;d<=days;d++){
     const ds=`${calY}-${String(calM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const e=document.createElement('div');e.className='cal-cell';e.textContent=d;
-    if(availDates.includes(ds)){e.classList.add('has');e.addEventListener('click',()=>loadDate(ds));}
-    if(ds===curDate)e.classList.add('sel');
-    if(d===today.getDate()&&calM===today.getMonth()&&calY===today.getFullYear())e.classList.add('today');
+    const e=document.createElement('div');
+    e.className='cal-cell';
+    e.textContent=String(d);
+    if(availDates.includes(ds)){
+      e.classList.add('has');
+      e.onclick=()=>loadDate(ds);
+    }
+    if(ds===curDate) e.classList.add('sel');
+    if(ds===todayStr) e.classList.add('today');
     grid.appendChild(e);
   }
 }
@@ -327,55 +375,7 @@ function renderPDFs(media){
   if(media?.pdf_tech_url){tBtn.classList.remove('off');tBtn.href=media.pdf_tech_url;tNm.textContent='技術系レポートPDF';}
   if(media?.pdf_pol_url){pBtn.classList.remove('off');pBtn.href=media.pdf_pol_url;pNm.textContent='政治情勢レポートPDF';}
 }
-function renderAudio(media){
-  const wrap=document.getElementById('audioWrap');
-  if(!media?.audio_url){wrap.innerHTML='<div class="audio-none">音声なし</div>';return;}
-  const url=media.audio_url;
-  const m=url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)||url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if(m){
-    wrap.innerHTML=`<iframe src="https://drive.google.com/file/d/${m[1]}/preview" allow="autoplay"></iframe>`;
-  }else{
-    wrap.innerHTML=`<audio controls style="width:100%;height:28px;" preload="none"><source src="${url}"></audio>`;
-  }
-}
-document.querySelectorAll('.tab').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const i=btn.dataset.i;
-    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('act'));
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('act'));
-    btn.classList.add('act');document.getElementById(`p${i}`).classList.add('act');
-  });
-});
-(async()=>{
-  initCal();
-  try{
-    await loadAll();
-    renderCal();
-    if(availDates.length)loadDate(availDates[availDates.length-1]);
-  }catch(e){
-    const el=document.getElementById('connErr');
-    el.textContent=`接続エラー: ${e.message}`;el.classList.add('on');
-    console.error(e);
-  }
-  setTimeout(()=>document.getElementById('loading').classList.add('out'),600);
-})();
-</script>
-</body>
-</html><script>
-const SHEET_ID='1D5GDqcSrJj6_SGk3OlnTDqoBL0su03t9Yi5McGTb578';
-const BASE='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&sheet=';
-const THEMES=[
-  {key:'optics',  label:'光学',    cls:'t0',kws:['フォトニクス','シリコンフォトニクス','光電融合','LiDAR','CPO']},
-  {key:'space',   label:'宇宙',    cls:'t1',kws:['衛星','防衛','核融合','レーザー','宇宙開発']},
-  {key:'domestic',label:'国内政治',cls:'t2',kws:['国会','閣議','与党','野党','経済安保']},
-  {key:'intl',    label:'海外政治',cls:'t3',kws:['米中','欧州','地政学','輸出規制','外交']},
-];
-const PAL=['#dc2626','#2563eb','#059669','#f59e0b','#7c3aed','#0891b2'];
-let curDate=null,availDates=[],calY,calM;
-let allArticles=[],allCharts=[],allMedia=[];
-const CI={};
 
-// ── CSV パーサー（\r\n対応）──────────────────────────
 function parseCSV(text){
   const lines=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n').filter(l=>l.trim());
   if(lines.length<2)return[];
@@ -549,29 +549,54 @@ function renderPDFs(media){
 
 function renderAudio(media){
   const wrap=document.getElementById('audioWrap');
-  if(!media||!media.audio_url){wrap.innerHTML='<div class="audio-none">音声なし</div>';return;}
-  // Google Drive の /preview URL を使ってiframe埋め込み再生
-  let url=media.audio_url;
-  const m=url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-  const id2=url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if(m)url='https://drive.google.com/file/d/'+m[1]+'/preview';
-  else if(id2)url='https://drive.google.com/file/d/'+id2[1]+'/preview';
-  wrap.innerHTML='<iframe src="'+url+'" width="100%" height="60" frameborder="0" allow="autoplay"></iframe>';
+  if(!media||!media.audio_url){
+    wrap.innerHTML='<div class="audio-none">この日の音声解説はありません</div>';
+    return;
+  }
+
+  const rawUrl=media.audio_url;
+  // DriveファイルIDを抽出
+  const m=rawUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)||rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  const fileId=m?m[1]:null;
+
+  // Google DriveはCORSブロックのため<audio>タグでは直接再生不可
+  // → /preview URLをiframeで埋め込む（最も確実）
+  if(fileId){
+    const previewUrl=`https://drive.google.com/file/d/${fileId}/preview`;
+    const driveUrl=`https://drive.google.com/file/d/${fileId}/view`;
+    wrap.innerHTML=`
+      <div class="aplayer">
+        <div class="aplayer-title">🎙 音声ポッドキャスト</div>
+        <iframe
+          src="${previewUrl}"
+          allow="autoplay"
+          allowfullscreen
+          style="width:100%;height:72px;border:none;border-radius:8px;display:block;background:#f5f0ff;"
+        ></iframe>
+        <a class="adrive-link" href="${driveUrl}" target="_blank" rel="noopener">
+          ☁ Google Driveで開く（別タブ）
+        </a>
+      </div>`;
+  } else {
+    // Drive以外のURL（直接再生を試みる）
+    wrap.innerHTML=`
+      <div class="aplayer">
+        <div class="aplayer-title">🎙 音声ポッドキャスト</div>
+        <audio controls preload="metadata"
+          style="width:100%;height:40px;display:block;margin-bottom:4px;accent-color:#7c3aed;">
+          <source src="${rawUrl}">
+        </audio>
+      </div>`;
+  }
 }
-
-// ── タブ切り替え ──────────────────────────────────
-document.querySelectorAll('.tab').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const i=btn.dataset.i;
-    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('act'));
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('act'));
-    btn.classList.add('act');document.getElementById('p'+i).classList.add('act');
-  });
-});
-
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-(async()=>{initCal();await loadAll();setTimeout(()=>document.getElementById('loading').classList.add('out'),600);})();
+(async()=>{
+  initCal();
+  try{ await loadAll(); }catch(e){ console.error('loadAll error:',e); }
+  // 成功・失敗にかかわらず必ずローディングを非表示
+  document.getElementById('loading').classList.add('out');
+})();
 </script>
 </body>
 </html>
