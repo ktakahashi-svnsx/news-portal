@@ -203,48 +203,54 @@ function csvLine(l){
 }
 
 async function fetchSheet(name){
-  // キャッシュ無効化のためfetch毎にタイムスタンプを付与
+  // cache:'no-store'はCORSプリフライトを引き起こすため除去
+  // タイムスタンプパラメータでブラウザキャッシュを回避
   const url=`${BASE}&sheet=${encodeURIComponent(name)}&_=${Date.now()}`;
-  const r=await fetch(url,{cache:'no-store'});
+  // タイムアウト付きfetch（10秒）
+  const ctrl=new AbortController();
+  const tid=setTimeout(()=>ctrl.abort(),10000);
+  let r;
+  try{
+    r=await fetch(url,{signal:ctrl.signal});
+  }catch(e){
+    clearTimeout(tid);
+    if(e.name==='AbortError')throw new Error('タイムアウト（10秒）しました');
+    throw e;
+  }
+  clearTimeout(tid);
   if(!r.ok)throw new Error(`HTTP ${r.status}`);
   const t=await r.text();
-  if(t.trim().startsWith('<!'))throw new Error('HTMLが返却されました（スプレッドシートの共有設定を確認してください）');
+  if(t.trim().startsWith('<!'))throw new Error('スプレッドシートの共有設定を確認してください');
   return t;
 }
 
 async function loadAll(){
   const errEl=document.getElementById('connErr');
   const okEl=document.getElementById('connOk');
-  try{
-    // articles（必須）
-    try{
-      allRows=parseCSV(await fetchSheet('articles'));
-    }catch(e){
-      allRows=[];
-      errEl.innerHTML='⚠ articlesシートの読み込みに失敗しました。<br>スプレッドシートの「ウェブに公開」設定を確認してください。<br><small>'+esc(e.message)+'</small>';
-      errEl.classList.add('on');
-    }
-    // charts（任意）
-    try{allChartRows=parseCSV(await fetchSheet('charts'));}catch(e){allChartRows=[];}
-    // media（任意）
-    try{allMediaRows=parseCSV(await fetchSheet('media'));}catch(e){allMediaRows=[];}
-
-    // 利用可能な日付一覧（articles + media両方から収集）
-    const artDates=allRows.map(r=>r.date).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d));
-    const mediaDates=allMediaRows.map(r=>r.date).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d));
-    availDates=[...new Set([...artDates,...mediaDates])].sort();
-
-    if(allRows.length>0){
-      okEl.textContent=`✓ ${allRows.length}件 / ${availDates.length}日分`;
-      okEl.classList.add('on');
-    }
-    // データが0件でもカレンダーと最新日付をレンダリング
-    renderCal();
-    if(availDates.length>0) loadDate(availDates[availDates.length-1]);
-  }catch(e){
-    errEl.innerHTML='⚠ 読み込みエラー: '+esc(e.message);
+  // articles
+  try{allRows=parseCSV(await fetchSheet('articles'));}
+  catch(e){
+    allRows=[];
+    errEl.textContent='⚠ '+e.message;
     errEl.classList.add('on');
   }
+  // charts
+  try{allChartRows=parseCSV(await fetchSheet('charts'));}catch(e){allChartRows=[];}
+  // media
+  try{allMediaRows=parseCSV(await fetchSheet('media'));}catch(e){allMediaRows=[];}
+
+  // 日付リスト
+  const artDates=allRows.map(r=>r.date).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d));
+  const mediaDates=allMediaRows.map(r=>r.date).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d));
+  availDates=[...new Set([...artDates,...mediaDates])].sort();
+
+  if(allRows.length>0){
+    okEl.textContent=`✓ ${allRows.length}件 / ${availDates.length}日分`;
+    okEl.classList.add('on');
+  }
+  // カレンダー再描画・最新日付を表示
+  renderCal();
+  if(availDates.length>0)loadDate(availDates[availDates.length-1]);
 }
 
 // Calendar
@@ -587,16 +593,9 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 
 (async()=>{
   initCal();
-  try{
-    await loadAll();
-  }catch(e){
-    const errEl=document.getElementById('connErr');
-    errEl.innerHTML='⚠ 予期しないエラー: '+esc(e.message);
-    errEl.classList.add('on');
-  }finally{
-    // エラーでも必ずローディングを非表示にする
-    setTimeout(()=>document.getElementById('loading').classList.add('out'),400);
-  }
+  try{ await loadAll(); }catch(e){ console.error('loadAll error:',e); }
+  // 成功・失敗にかかわらず必ずローディングを非表示
+  document.getElementById('loading').classList.add('out');
 })();
 </script>
 </body>
