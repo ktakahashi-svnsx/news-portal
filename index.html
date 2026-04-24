@@ -533,12 +533,35 @@ function renderCharts(i,theme,data){
   });
 }
 function renderPDFs(media){
-  const tBtn=document.getElementById('pdfTechBtn'),pBtn=document.getElementById('pdfPolBtn');
-  const tNm=document.getElementById('pdfTechName'),pNm=document.getElementById('pdfPolName');
-  [tBtn,pBtn].forEach(b=>{b.classList.add('off');b.removeAttribute('href');});
-  tNm.textContent='技術系レポート';pNm.textContent='政治情勢レポート';
-  if(media?.pdf_tech_url){tBtn.classList.remove('off');tBtn.href=media.pdf_tech_url;tNm.textContent='技術系レポートPDF';}
-  if(media?.pdf_pol_url){pBtn.classList.remove('off');pBtn.href=media.pdf_pol_url;pNm.textContent='政治情勢レポートPDF';}
+  // ── PC用サイドバー ──
+  const tBtn=document.getElementById('pdfTechBtn');
+  const pBtn=document.getElementById('pdfPolBtn');
+  const tNm=document.getElementById('pdfTechName');
+  const pNm=document.getElementById('pdfPolName');
+  if(tBtn){tBtn.classList.add('off');tBtn.removeAttribute('href');}
+  if(pBtn){pBtn.classList.add('off');pBtn.removeAttribute('href');}
+  if(tNm)tNm.textContent='技術系レポート';
+  if(pNm)pNm.textContent='政治情勢レポート';
+  // ── スマホ用下部バー ──
+  const mbTech=document.getElementById('mbPdfTech');
+  const mbPol=document.getElementById('mbPdfPol');
+  if(mbTech){mbTech.classList.add('off');mbTech.removeAttribute('href');}
+  if(mbPol){mbPol.classList.add('off');mbPol.removeAttribute('href');}
+  if(!media)return;
+  // 技術系PDF
+  const techUrl=media.pdf_tech_url||'';
+  if(techUrl){
+    if(tBtn){tBtn.classList.remove('off');tBtn.href=techUrl;}
+    if(tNm)tNm.textContent='技術系レポートPDF';
+    if(mbTech){mbTech.classList.remove('off');mbTech.href=techUrl;}
+  }
+  // 政治系PDF
+  const polUrl=media.pdf_pol_url||'';
+  if(polUrl){
+    if(pBtn){pBtn.classList.remove('off');pBtn.href=polUrl;}
+    if(pNm)pNm.textContent='政治情勢レポートPDF';
+    if(mbPol){mbPol.classList.remove('off');mbPol.href=polUrl;}
+  }
 }
 
 
@@ -735,8 +758,8 @@ document.querySelectorAll('.tab').forEach(function(t){
   </div>
   <!-- 下段：PDF2ボタン -->
   <div class="mb-pdf-row">
-    <a class="mb-pdf-btn tech off" id="mbPdfTech" target="_blank">📘 技術系レポートPDF</a>
-    <a class="mb-pdf-btn pol off" id="mbPdfPol" target="_blank">📕 政治情勢レポートPDF</a>
+    <a class="mb-pdf-btn tech off" id="mbPdfTech" target="_blank" rel="noopener">📘 技術系レポートPDF</a>
+    <a class="mb-pdf-btn pol off" id="mbPdfPol" target="_blank" rel="noopener">📕 政治情勢レポートPDF</a>
   </div>
 </div>
 
