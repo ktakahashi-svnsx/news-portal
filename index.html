@@ -6,7 +6,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>光・宇宙・政治 ニュースポータル</title>
+<title><!-- v20260424054337 -->光・宇宙・政治 ニュースポータル</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -376,17 +376,7 @@ function renderPDFs(media){
   if(media?.pdf_pol_url){pBtn.classList.remove('off');pBtn.href=media.pdf_pol_url;pNm.textContent='政治情勢レポートPDF';}
 }
 
-function parseCSV(text){
-  const lines=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n').filter(l=>l.trim());
-  if(lines.length<2)return[];
-  const headers=parseLine(lines[0]);
-  return lines.slice(1).map(line=>{
-    const fields=parseLine(line);
-    const obj={};
-    headers.forEach((h,i)=>{obj[h]=(fields[i]||'').trim();});
-    return obj;
-  }).filter(r=>Object.values(r).some(v=>v));
-}
+
 function parseLine(line){
   const fields=[];let cur='',inQ=false;
   for(let i=0;i<line.length;i++){
@@ -401,201 +391,36 @@ function parseLine(line){
   return fields.map(f=>f.trim());
 }
 
-// ── シート読み込み ─────────────────────────────────
-async function fetchSheet(name){
-  const r=await fetch(BASE+encodeURIComponent(name));
-  if(!r.ok)throw new Error('HTTP '+r.status);
-  const t=await r.text();
-  if(!t||t.trim().startsWith('<!'))throw new Error('HTMLが返却されました。スプレッドシートの共有設定を確認してください');
-  return parseCSV(t);
-}
-
-async function loadAll(){
-  const el=document.getElementById('sheetStatus');
-  try{
-    const[articles,charts,media]=await Promise.all([
-      fetchSheet('articles'),
-      fetchSheet('charts').catch(()=>[]),
-      fetchSheet('media').catch(()=>[]),
-    ]);
-    allArticles=articles;allCharts=charts;allMedia=media;
-    availDates=[...new Set(allArticles.map(r=>r.date).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)))];
-    allMedia.forEach(r=>{if(/^\d{4}-\d{2}-\d{2}$/.test(r.date)&&!availDates.includes(r.date))availDates.push(r.date);});
-    availDates.sort();
-    el.textContent='✓ 接続済み（記事'+allArticles.length+'件 / '+availDates.length+'日分）';
-    el.className='sheet-status ok';
-    renderCal();
-    if(availDates.length)loadDate(availDates[availDates.length-1]);
-  }catch(e){
-    el.innerHTML='⚠ 読み込み失敗：'+esc(e.message);
-    el.className='sheet-status err';
-    console.warn(e);
-  }
-}
-
-// ── カレンダー ─────────────────────────────────────
-function initCal(){const n=new Date();calY=n.getFullYear();calM=n.getMonth();renderCal();}
-function renderCal(){
-  document.getElementById('calLbl').textContent=calY+'年'+(calM+1)+'月';
-  const first=new Date(calY,calM,1).getDay(),days=new Date(calY,calM+1,0).getDate();
-  const today=new Date(),grid=document.getElementById('calDates');
-  grid.innerHTML='';
-  for(let i=0;i<first;i++){const el=document.createElement('div');el.className='cal-cell';grid.appendChild(el);}
-  for(let d=1;d<=days;d++){
-    const ds=calY+'-'+String(calM+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const el=document.createElement('div');el.className='cal-cell';el.textContent=d;
-    if(availDates.includes(ds)){el.classList.add('has');el.addEventListener('click',()=>loadDate(ds));}
-    if(ds===curDate)el.classList.add('sel');
-    if(d===today.getDate()&&calM===today.getMonth()&&calY===today.getFullYear())el.classList.add('today');
-    grid.appendChild(el);
-  }
-}
-document.getElementById('calPrev').onclick=()=>{calM--;if(calM<0){calM=11;calY--;}renderCal();};
-document.getElementById('calNext').onclick=()=>{calM++;if(calM>11){calM=0;calY++;}renderCal();};
-
-// ── 日付選択 ──────────────────────────────────────
-function loadDate(ds){
-  curDate=ds;renderCal();
-  const d=new Date(ds+'T00:00:00');
-  document.getElementById('sideDate').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';
-  const arts=allArticles.filter(r=>r.date===ds);
-  const chs=allCharts.filter(r=>r.date===ds);
-  const med=allMedia.find(r=>r.date===ds)||null;
-  renderAll(arts,chs,med);
-}
-
-// ── 全体レンダリング ───────────────────────────────
-function renderAll(articles,charts,media){
-  let total=0;
-  THEMES.forEach((t,i)=>{
-    const items=articles.filter(r=>r.section===t.key);
-    const chs=charts.filter(r=>r.section===t.key);
-    total+=items.length;
-    document.getElementById('b'+i).textContent=items.length;
-    renderKw(i,t.kws);
-    renderNews(i,t,items);
-    renderCharts(i,chs);
-  });
-  document.getElementById('topicCnt').textContent=total;
-  document.getElementById('sideBadge').classList.toggle('on',total>0);
-  renderPDFs(media);
-  renderAudio(media);
-}
-
-function renderKw(i,kws){
-  const c=document.getElementById('kw'+i);c.innerHTML='';
-  kws.forEach((k,j)=>{
-    if(j){const s=document.createElement('span');s.className='kw-sep';s.textContent='・';c.appendChild(s);}
-    const sp=document.createElement('span');sp.className='kw-tag';sp.textContent=k;c.appendChild(sp);
-  });
-}
-
-function renderNews(i,theme,items){
-  const grid=document.getElementById('ng'+i);grid.innerHTML='';
-  if(!items.length){grid.innerHTML='<div class="no-news"><div class="no-news-ico">📭</div><div>この日のニュースはまだありません</div></div>';return;}
-  items.forEach(item=>{
-    const card=document.createElement('div');card.className='ncard';
-    const ins=item.insight?'<div class="ninsight">'+esc(item.insight)+'</div>':'';
-    const u=item.url?'<div class="nurl"><a href="'+esc(item.url)+'" target="_blank" rel="noopener">'+esc(item.url.length>55?item.url.slice(0,55)+'…':item.url)+'</a></div>':'';
-    card.innerHTML='<div class="ncard-body">'
-      +'<div class="ncard-meta"><span class="ntag '+theme.cls+'">'+esc(item.tag||theme.label)+'</span><span class="nmedia">'+esc(item.source_label||'')+'</span></div>'
-      +'<div class="ntitle">'+esc(item.title)+'</div>'
-      +'<div class="nbody">'+esc(item.detail)+'</div>'
-      +ins+u+'</div>';
-    grid.appendChild(card);
-  });
-}
-
-function renderCharts(i,chartRows){
-  const wrap=document.getElementById('ch'+i);wrap.innerHTML='';
-  if(!chartRows.length)return;
-  const hd=document.createElement('div');hd.className='charts-hd';hd.textContent='市場予測・データチャート';wrap.appendChild(hd);
-  chartRows.forEach(ch=>{
-    const card=document.createElement('div');card.className='chart-card';
-    const cid='c_'+Math.random().toString(36).slice(2);
-    card.innerHTML='<div class="chart-card-ttl">'+esc(ch.title)+'</div><div class="chart-card-sub">単位：'+esc(ch.unit||'')+'</div><div class="chart-wrap"><canvas id="'+cid+'"></canvas></div>';
-    wrap.appendChild(card);
-    try{
-      const labels=JSON.parse(ch.labels_json||'[]');
-      const raw=JSON.parse(ch.data_json||'[]');
-      const isBar=ch.type==='bar';
-      let datasets;
-      if(Array.isArray(raw)&&raw.length&&typeof raw[0]==='object'){
-        datasets=raw.map((ds,j)=>({label:ds.label||'',data:ds.data||[],borderColor:PAL[j%PAL.length],backgroundColor:PAL[j%PAL.length]+(isBar?'55':'18'),borderWidth:2,tension:0.4,fill:!isBar,pointRadius:3,pointBackgroundColor:PAL[j%PAL.length]}));
-      }else{
-        datasets=[{label:ch.unit||'',data:raw,borderColor:PAL[0],backgroundColor:PAL[0]+(isBar?'55':'18'),borderWidth:2,tension:0.4,fill:!isBar,pointRadius:3,pointBackgroundColor:PAL[0]}];
-      }
-      if(CI[cid])CI[cid].destroy();
-      CI[cid]=new Chart(document.getElementById(cid).getContext('2d'),{
-        type:isBar?'bar':'line',data:{labels,datasets},
-        options:{responsive:true,maintainAspectRatio:false,
-          plugins:{legend:{display:datasets.length>1,position:'bottom',labels:{font:{size:10,family:'Noto Sans JP'},padding:12,boxWidth:12}},tooltip:{backgroundColor:'#fff',borderColor:'#e5e7eb',borderWidth:1,titleColor:'#374151',bodyColor:'#374151'}},
-          scales:{x:{grid:{color:'#f3f4f6'},ticks:{color:'#6b7280',font:{size:10}},border:{color:'#e5e7eb'}},y:{grid:{color:'#f3f4f6'},ticks:{color:'#6b7280',font:{size:10}},border:{color:'#e5e7eb'}}}}
-      });
-    }catch(e){console.warn('Chart error:',e);}
-  });
-}
-
-function renderPDFs(media){
-  const tBtn=document.getElementById('pdfTechBtn');
-  const pBtn=document.getElementById('pdfPolBtn');
-  [tBtn,pBtn].forEach(b=>{b.classList.add('off');b.removeAttribute('href');});
-  document.getElementById('pdfTechName').textContent='技術系レポート';
-  document.getElementById('pdfPolName').textContent='政治情勢レポート';
-  if(!media)return;
-  if(media.pdf_tech_url){tBtn.classList.remove('off');tBtn.href=media.pdf_tech_url;document.getElementById('pdfTechName').textContent='技術系レポート（光学・宇宙）';}
-  if(media.pdf_pol_url){pBtn.classList.remove('off');pBtn.href=media.pdf_pol_url;document.getElementById('pdfPolName').textContent='政治情勢レポート（国内・海外）';}
-}
-
 function renderAudio(media){
   const wrap=document.getElementById('audioWrap');
   if(!media||!media.audio_url){
     wrap.innerHTML='<div class="audio-none">この日の音声解説はありません</div>';
     return;
   }
-
   const rawUrl=media.audio_url;
-  // DriveファイルIDを抽出
   const m=rawUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)||rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
   const fileId=m?m[1]:null;
-
-  // Google DriveはCORSブロックのため<audio>タグでは直接再生不可
-  // → /preview URLをiframeで埋め込む（最も確実）
   if(fileId){
     const previewUrl=`https://drive.google.com/file/d/${fileId}/preview`;
     const driveUrl=`https://drive.google.com/file/d/${fileId}/view`;
-    wrap.innerHTML=`
-      <div class="aplayer">
-        <div class="aplayer-title">🎙 音声ポッドキャスト</div>
-        <iframe
-          src="${previewUrl}"
-          allow="autoplay"
-          allowfullscreen
-          style="width:100%;height:72px;border:none;border-radius:8px;display:block;background:#f5f0ff;"
-        ></iframe>
-        <a class="adrive-link" href="${driveUrl}" target="_blank" rel="noopener">
-          ☁ Google Driveで開く（別タブ）
-        </a>
-      </div>`;
-  } else {
-    // Drive以外のURL（直接再生を試みる）
-    wrap.innerHTML=`
-      <div class="aplayer">
-        <div class="aplayer-title">🎙 音声ポッドキャスト</div>
-        <audio controls preload="metadata"
-          style="width:100%;height:40px;display:block;margin-bottom:4px;accent-color:#7c3aed;">
-          <source src="${rawUrl}">
-        </audio>
-      </div>`;
+    wrap.innerHTML=`<div class="aplayer"><div class="aplayer-title">🎙 音声ポッドキャスト</div><iframe src="${previewUrl}" allow="autoplay" allowfullscreen style="width:100%;height:72px;border:none;border-radius:8px;display:block;background:#f5f0ff;"></iframe><a class="adrive-link" href="${driveUrl}" target="_blank" rel="noopener">☁ Google Driveで開く（別タブ）</a></div>`;
+  }else{
+    wrap.innerHTML=`<div class="aplayer"><div class="aplayer-title">🎙 音声ポッドキャスト</div><audio controls preload="metadata" style="width:100%;height:40px;display:block;margin-bottom:4px;accent-color:#7c3aed;"><source src="${rawUrl}"></audio></div>`;
   }
 }
+
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
+// v20260424054337
 (async()=>{
   initCal();
   try{ await loadAll(); }catch(e){ console.error('loadAll error:',e); }
   // 成功・失敗にかかわらず必ずローディングを非表示
-  document.getElementById('loading').classList.add('out');
+  const ld=document.getElementById('loading');
+  ld.classList.add('out');
+  ld.style.opacity='0';
+  ld.style.pointerEvents='none';
+  setTimeout(()=>{ld.style.display='none';},600);
 })();
 </script>
 </body>
