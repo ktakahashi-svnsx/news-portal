@@ -2,6 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>光・宇宙・政治 ニュースポータル</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,7 +46,7 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .cal-hd-lbl{font-size:12px;font-weight:700;font-family:'Oswald',sans-serif}
 .cal-nav{background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:0 4px;border-radius:5px;line-height:1;transition:background .1s}
 .cal-nav:hover{background:#f3f4f6;color:var(--text)}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);padding:6px 6px 8px;gap:2px}
+.cal-grid{display:grid!important;grid-template-columns:repeat(7,1fr)!important;padding:6px 6px 8px;gap:2px;width:100%;box-sizing:border-box}
 .cal-dh{text-align:center;font-size:9px;color:var(--muted);padding:2px 0;font-weight:600}
 .cal-cell{text-align:center;font-size:10px;color:#c9cdd5;padding:5px 1px;border-radius:5px;cursor:default;line-height:1;position:relative;transition:background .1s}
 .cal-cell.has{color:var(--text);cursor:pointer;font-weight:600}
@@ -134,10 +137,7 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
     </div>
     <div class="cal">
       <div class="cal-hd"><button class="cal-nav" id="calPrev">‹</button><span class="cal-hd-lbl" id="calLbl"></span><button class="cal-nav" id="calNext">›</button></div>
-      <div class="cal-grid">
-        <div class="cal-dh">日</div><div class="cal-dh">月</div><div class="cal-dh">火</div><div class="cal-dh">水</div><div class="cal-dh">木</div><div class="cal-dh">金</div><div class="cal-dh">土</div>
-        <div id="calDates" style="display:contents"></div>
-      </div>
+      <div class="cal-grid" id="calGrid"><div class="cal-dh">日</div><div class="cal-dh">月</div><div class="cal-dh">火</div><div class="cal-dh">水</div><div class="cal-dh">木</div><div class="cal-dh">金</div><div class="cal-dh">土</div></div>
       <div class="cal-leg"><span><div class="leg-dot"></div>データあり</span><span><div class="leg-sq"></div>今日</span></div>
     </div>
     <div>
@@ -203,7 +203,9 @@ function csvLine(l){
 }
 
 async function fetchSheet(name){
-  const r=await fetch(`${BASE}&sheet=${encodeURIComponent(name)}`);
+  // キャッシュ無効化のためfetch毎にタイムスタンプを付与
+  const url=`${BASE}&sheet=${encodeURIComponent(name)}&_=${Date.now()}`;
+  const r=await fetch(url,{cache:'no-store'});
   if(!r.ok)throw new Error(`HTTP ${r.status}`);
   const t=await r.text();
   if(t.trim().startsWith('<!'))throw new Error('HTMLが返却されました（スプレッドシートの共有設定を確認してください）');
@@ -246,19 +248,35 @@ async function loadAll(){
 }
 
 // Calendar
-function initCal(){const n=new Date();calY=n.getFullYear();calM=n.getMonth();}
+function initCal(){const n=new Date();calY=n.getFullYear();calM=n.getMonth();renderCal();}
 function renderCal(){
   document.getElementById('calLbl').textContent=`${calY}年${calM+1}月`;
-  const first=new Date(calY,calM,1).getDay(),days=new Date(calY,calM+1,0).getDate();
-  const today=new Date(),grid=document.getElementById('calDates');
-  grid.innerHTML='';
-  for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cal-cell';grid.appendChild(e);}
+  const first=new Date(calY,calM,1).getDay();
+  const days=new Date(calY,calM+1,0).getDate();
+  const today=new Date();
+  const todayStr=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const grid=document.getElementById('calGrid');
+  // 曜日ヘッダー(cal-dh)は残し、日付セル(cal-cell)だけ削除して再生成
+  const oldCells=grid.querySelectorAll('.cal-cell');
+  oldCells.forEach(e=>e.remove());
+  // 月初の空白
+  for(let i=0;i<first;i++){
+    const e=document.createElement('div');
+    e.className='cal-cell';
+    grid.appendChild(e);
+  }
+  // 日付
   for(let d=1;d<=days;d++){
     const ds=`${calY}-${String(calM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const e=document.createElement('div');e.className='cal-cell';e.textContent=d;
-    if(availDates.includes(ds)){e.classList.add('has');e.addEventListener('click',()=>loadDate(ds));}
-    if(ds===curDate)e.classList.add('sel');
-    if(d===today.getDate()&&calM===today.getMonth()&&calY===today.getFullYear())e.classList.add('today');
+    const e=document.createElement('div');
+    e.className='cal-cell';
+    e.textContent=String(d);
+    if(availDates.includes(ds)){
+      e.classList.add('has');
+      e.onclick=()=>loadDate(ds);
+    }
+    if(ds===curDate) e.classList.add('sel');
+    if(ds===todayStr) e.classList.add('today');
     grid.appendChild(e);
   }
 }
@@ -410,7 +428,7 @@ async function loadAll(){
 }
 
 // ── カレンダー ─────────────────────────────────────
-function initCal(){const n=new Date();calY=n.getFullYear();calM=n.getMonth();}
+function initCal(){const n=new Date();calY=n.getFullYear();calM=n.getMonth();renderCal();}
 function renderCal(){
   document.getElementById('calLbl').textContent=calY+'年'+(calM+1)+'月';
   const first=new Date(calY,calM,1).getDay(),days=new Date(calY,calM+1,0).getDate();
