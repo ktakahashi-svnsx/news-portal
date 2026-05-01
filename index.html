@@ -581,8 +581,273 @@ function parseLine(line){
   return fields.map(f=>f.trim());
 }
 
-// 再生速度の状態を保持
+// ── Web Audio API プレイヤー ──────────────────────────────
 window._audioPlaybackRate = window._audioPlaybackRate || 1.0;
+
+// Web Audio API の状態
+const _wa = {
+  ctx: null,
+  source: null,
+  buffer: null,
+  startedAt: 0,
+  pausedAt: 0,
+  playing: false,
+  duration: 0,
+  rafId: null,
+  onTimeUpdate: null,
+};
+
+function _waCtx(){
+  if(!_wa.ctx) _wa.ctx = new (window.AudioContext||window.webkitAudioContext)();
+  return _wa.ctx;
+}
+
+function _waStop(){
+  if(_wa.source){ try{_wa.source.stop();}catch(e){} _wa.source=null; }
+  if(_wa.rafId){ cancelAnimationFrame(_wa.rafId); _wa.rafId=null; }
+  _wa.playing=false;
+}
+
+function _waCurrentTime(){
+  if(_wa.playing) return ((_waCtx().currentTime - _wa.startedAt) * window._audioPlaybackRate) + _wa.pausedAt;
+  return _wa.pausedAt;
+}
+
+function _waPlay(offset){
+  _waStop();
+  if(!_wa.buffer) return;
+  const ctx=_waCtx();
+  const src=ctx.createBufferSource();
+  src.buffer=_wa.buffer;
+  src.playbackRate.value=window._audioPlaybackRate;
+  src.connect(ctx.destination);
+  const off=offset!=null?offset:_wa.pausedAt;
+  _wa.startedAt=ctx.currentTime - off/window._audioPlaybackRate;
+  _wa.pausedAt=off;
+  _wa.playing=true;
+  _wa.source=src;
+  src.start(0, off);
+  src.onended=function(){
+    if(_wa.playing){
+      _wa.playing=false;
+      _wa.pausedAt=0;
+      _waUpdateUI(false);
+    }
+  };
+  _waUpdateUI(true);
+  _waTick();
+}
+
+function _waPause(){
+  _wa.pausedAt=_waCurrentTime();
+  _waStop();
+  _waUpdateUI(false);
+}
+
+function _waTick(){
+  _wa.rafId=requestAnimationFrame(function(){
+    if(!_wa.playing) return;
+    if(_wa.onTimeUpdate) _wa.onTimeUpdate(_waCurrentTime(), _wa.duration);
+    _waTick();
+  });
+}
+
+function _waUpdateUI(playing){
+  document.querySelectorAll('.aplay-btn-wa').forEach(btn=>{
+    btn.textContent=playing?'⏸':'▶';
+    btn.title=playing?'一時停止':'再生';
+  });
+}
+
+// Web Audio APIプレイヤーのDOMを構築
+function buildWaPlayer(fileId, rawUrl, prefix){
+  const wrap=document.createElement('div');
+
+  // ローディング表示
+  const loading=document.createElement('div');
+  loading.style.cssText='text-align:center;padding:12px 0;font-size:11px;color:#7c3aed;';
+  loading.textContent='⏳ 音声を読み込み中...';
+  wrap.appendChild(loading);
+
+  // 速度ボタン（先に作っておく）
+  const speedRow=buildSpeedRow(null, prefix);
+  // 速度ボタンのクリックで再生中のsourceに即反映
+  speedRow.querySelectorAll('.aspeed-btn').forEach(btn=>{
+    btn.onclick=function(){
+      const s=parseFloat(btn.textContent);
+      window._audioPlaybackRate=s;
+      document.querySelectorAll('.aspeed-btn').forEach(b=>{
+        b.classList.toggle('act', b.textContent===btn.textContent);
+      });
+      if(_wa.playing){
+        const cur=_waCurrentTime();
+        _wa.pausedAt=cur;
+        _waPlay(cur);
+      } else if(_wa.source){
+        // 停止中はソースの速度だけ更新
+      }
+    };
+  });
+
+  const fetchUrl = fileId
+    ? `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=AIzaSyD-placeholder`
+    : rawUrl;
+  // Google DriveはCORSが通る場合とそうでない場合がある
+  // /uc?export=download を試みる
+  const tryUrl = fileId
+    ? `https://drive.google.com/uc?export=download&id=${fileId}&confirm=t`
+    : rawUrl;
+
+  fetch(tryUrl, {mode:'cors'})
+    .then(r=>{
+      if(!r.ok) throw new Error('fetch failed: '+r.status);
+      return r.arrayBuffer();
+    })
+    .then(buf=>_waCtx().decodeAudioData(buf))
+    .then(decoded=>{
+      _wa.buffer=decoded;
+      _wa.duration=decoded.duration;
+      _wa.pausedAt=0;
+      _wa.playing=false;
+
+      // ローディングを消してプレイヤーUIを構築
+      loading.remove();
+
+      // 再生/一時停止ボタン
+      const row1=document.createElement('div');
+      row1.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:8px;';
+
+      const playBtn=document.createElement('button');
+      playBtn.className='aplay-btn aplay-btn-wa';
+      playBtn.textContent='▶';
+      playBtn.title='再生';
+      playBtn.onclick=function(){
+        if(_waCtx().state==='suspended') _waCtx().resume();
+        if(_wa.playing) _waPause();
+        else _waPlay();
+      };
+      row1.appendChild(playBtn);
+
+      // シークバー＋時刻
+      const timeWrap=document.createElement('div');
+      timeWrap.className='atime-wrap';
+
+      const barWrap=document.createElement('div');
+      barWrap.className='abar-wrap';
+      barWrap.innerHTML=`<div class="abar-bg"></div><div class="abar-fill" id="${prefix}BarFill"></div><div class="abar-thumb" id="${prefix}BarThumb"></div><div class="abar-hit"></div>`;
+
+      const timeDisp=document.createElement('div');
+      timeDisp.className='atime';
+      timeDisp.id=prefix+'TimeDisp';
+      timeDisp.textContent='0:00 / '+_fmtTime(_wa.duration);
+
+      timeWrap.appendChild(barWrap);
+      timeWrap.appendChild(timeDisp);
+      row1.appendChild(timeWrap);
+
+      // ミュートボタン
+      const muteBtn=document.createElement('button');
+      muteBtn.className='amute-btn';
+      muteBtn.title='ミュート';
+      muteBtn.textContent='🔊';
+      let muted=false;
+      let _gainNode=_waCtx().createGain();
+      _gainNode.connect(_waCtx().destination);
+      muteBtn.onclick=function(){
+        muted=!muted;
+        _gainNode.gain.value=muted?0:1;
+        muteBtn.textContent=muted?'🔇':'🔊';
+      };
+      row1.appendChild(muteBtn);
+
+      wrap.appendChild(row1);
+
+      // シークバーのクリック
+      barWrap.querySelector('.abar-hit').addEventListener('click',function(e){
+        const rect=barWrap.getBoundingClientRect();
+        const pct=(e.clientX-rect.left)/rect.width;
+        const seekTo=Math.max(0,Math.min(_wa.duration, pct*_wa.duration));
+        _wa.pausedAt=seekTo;
+        if(_wa.playing) _waPlay(seekTo);
+        else _waUpdateBar(seekTo, _wa.duration, prefix);
+      });
+
+      // 時刻更新コールバック
+      _wa.onTimeUpdate=function(cur, dur){
+        _waUpdateBar(cur, dur, prefix);
+      };
+
+      wrap.appendChild(speedRow);
+
+      if(fileId){
+        const driveUrl=`https://drive.google.com/file/d/${fileId}/view`;
+        const lnk=document.createElement('a');
+        lnk.className='adrive-link';
+        lnk.href=driveUrl;
+        lnk.target='_blank';
+        lnk.rel='noopener';
+        lnk.textContent='☁ Google Driveで開く（別タブ）';
+        wrap.appendChild(lnk);
+      }
+    })
+    .catch(err=>{
+      // fetchに失敗 → iframeにフォールバック
+      console.warn('Web Audio fetch failed, falling back to iframe:', err);
+      loading.remove();
+      wrap.appendChild(_buildIframeFallback(fileId, rawUrl, prefix));
+      wrap.appendChild(speedRow);
+      const note=document.createElement('div');
+      note.style.cssText='font-size:9px;color:#f59e0b;margin-top:4px;text-align:center;';
+      note.textContent='⚠ 速度変更には「Google Driveで開く」から再生してください';
+      wrap.appendChild(note);
+    });
+
+  return wrap;
+}
+
+function _buildIframeFallback(fileId, rawUrl, prefix){
+  if(fileId){
+    const previewUrl=`https://drive.google.com/file/d/${fileId}/preview`;
+    const driveUrl=`https://drive.google.com/file/d/${fileId}/view`;
+    const frag=document.createDocumentFragment();
+    const iframe=document.createElement('iframe');
+    iframe.src=previewUrl;
+    iframe.allow='autoplay';
+    iframe.style.cssText='width:100%;height:72px;border:none;border-radius:8px;display:block;background:#f5f0ff;margin-bottom:6px;';
+    frag.appendChild(iframe);
+    const lnk=document.createElement('a');
+    lnk.className='adrive-link';
+    lnk.href=driveUrl;
+    lnk.target='_blank';
+    lnk.rel='noopener';
+    lnk.textContent='☁ Google Driveで開く（別タブ）';
+    frag.appendChild(lnk);
+    return frag;
+  } else {
+    const audio=document.createElement('audio');
+    audio.controls=true;
+    audio.preload='metadata';
+    audio.style.cssText='width:100%;height:40px;display:block;accent-color:#7c3aed;';
+    audio.innerHTML=`<source src="${rawUrl}">`;
+    return audio;
+  }
+}
+
+function _waUpdateBar(cur, dur, prefix){
+  const pct=dur>0?(cur/dur*100):0;
+  const fill=document.getElementById(prefix+'BarFill');
+  const thumb=document.getElementById(prefix+'BarThumb');
+  const disp=document.getElementById(prefix+'TimeDisp');
+  if(fill) fill.style.width=pct+'%';
+  if(thumb) thumb.style.left=`calc(2px + ${pct}% * (100% - 20px) / 100)`;
+  if(disp) disp.textContent=_fmtTime(cur)+' / '+_fmtTime(dur);
+}
+
+function _fmtTime(s){
+  if(isNaN(s)||s<0) return '0:00';
+  const m=Math.floor(s/60), ss=Math.floor(s%60);
+  return m+':'+(ss<10?'0':'')+ss;
+}
 
 function buildSpeedRow(audioEl, prefix){
   const speeds=[1.0,1.2,1.5,2.0];
@@ -597,14 +862,13 @@ function buildSpeedRow(audioEl, prefix){
     const btn=document.createElement('button');
     btn.className='aspeed-btn'+(s===window._audioPlaybackRate?' act':'');
     btn.textContent=s===1.0?'1.0×':s+'×';
+    // デフォルトのonclickはbuilder側で上書きする
     btn.onclick=function(){
       window._audioPlaybackRate=s;
-      // 全てのaudioタグに速度を適用
-      document.querySelectorAll('audio.speed-ctrl').forEach(a=>{a.playbackRate=s;});
-      // 全ての速度ボタンを更新
       document.querySelectorAll('.aspeed-btn').forEach(b=>{
-        b.classList.toggle('act', b.textContent===(s===1.0?'1.0×':s+'×'));
+        b.classList.toggle('act', b.textContent===btn.textContent);
       });
+      document.querySelectorAll('audio.speed-ctrl').forEach(a=>{a.playbackRate=s;});
     };
     row.appendChild(btn);
   });
@@ -613,23 +877,15 @@ function buildSpeedRow(audioEl, prefix){
 
 function renderAudio(media){
   const wrap=document.getElementById('audioWrap');
-  // スマホ用: ボタンと本体URLを保存
   window._currentAudioMedia=media;
+  _waStop(); _wa.buffer=null; _wa.pausedAt=0;
   const mbBtn=document.getElementById('mbAudioBtn');
   const mbTxt=document.getElementById('mbAudioTxt');
   if(mbBtn&&mbTxt){
-    if(media&&media.audio_url){
-      mbBtn.classList.add('has-audio');
-      mbTxt.textContent='音声を再生';
-    }else{
-      mbBtn.classList.remove('has-audio');
-      mbTxt.textContent='音声なし';
-    }
+    if(media&&media.audio_url){mbBtn.classList.add('has-audio');mbTxt.textContent='音声を再生';}
+    else{mbBtn.classList.remove('has-audio');mbTxt.textContent='音声なし';}
   }
-  if(!media||!media.audio_url){
-    wrap.innerHTML='<div class="audio-none">この日の音声解説はありません</div>';
-    return;
-  }
+  if(!media||!media.audio_url){wrap.innerHTML='<div class="audio-none">この日の音声解説はありません</div>';return;}
   const rawUrl=media.audio_url;
   const m=rawUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)||rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
   const fileId=m?m[1]:null;
@@ -639,66 +895,7 @@ function renderAudio(media){
   title.className='aplayer-title';
   title.textContent='🎙 音声ポッドキャスト';
   container.appendChild(title);
-  if(fileId){
-    // Google Drive: iframeで再生 + 速度ボタンはWeb Audio APIで別途制御
-    const previewUrl=`https://drive.google.com/file/d/${fileId}/preview`;
-    const driveUrl=`https://drive.google.com/file/d/${fileId}/view`;
-    const iframeId='driveIframe_sb';
-    const iframe=document.createElement('iframe');
-    iframe.id=iframeId;
-    iframe.src=previewUrl;
-    iframe.allow='autoplay';
-    iframe.allowFullscreen=true;
-    iframe.style.cssText='width:100%;height:72px;border:none;border-radius:8px;display:block;background:#f5f0ff;';
-    container.appendChild(iframe);
-    // 速度ボタン（iframeの場合は注釈付き）
-    const speedRow=buildSpeedRow(null,'sb');
-    // iframeは速度変更不可のため、ボタン動作をDriveリンク案内に変更
-    speedRow.querySelectorAll('.aspeed-btn').forEach(btn=>{
-      const orig=btn.onclick;
-      btn.onclick=function(){
-        window._audioPlaybackRate=parseFloat(btn.textContent);
-        document.querySelectorAll('.aspeed-btn').forEach(b=>{
-          b.classList.toggle('act',b===btn);
-        });
-        // iframeのaudioに速度を試みる（同一オリジンでないと効かないが試行）
-        try{
-          const ifr=document.getElementById(iframeId);
-          if(ifr&&ifr.contentDocument){
-            const a=ifr.contentDocument.querySelector('audio,video');
-            if(a)a.playbackRate=window._audioPlaybackRate;
-          }
-        }catch(e){}
-        // 直接audioタグがあれば適用
-        document.querySelectorAll('audio.speed-ctrl').forEach(a=>{a.playbackRate=window._audioPlaybackRate;});
-      };
-    });
-    container.appendChild(speedRow);
-    // 速度変更の補足メモ
-    const note=document.createElement('div');
-    note.style.cssText='font-size:9px;color:#a78bfa;margin-top:4px;text-align:center;';
-    note.textContent='※ Google Drive再生時は速度設定が反映されない場合があります';
-    container.appendChild(note);
-    const lnk=document.createElement('a');
-    lnk.className='adrive-link';
-    lnk.href=driveUrl;
-    lnk.target='_blank';
-    lnk.rel='noopener';
-    lnk.textContent='☁ Google Driveで開く（別タブ）';
-    container.appendChild(lnk);
-  }else{
-    // 直接URL: HTML5 audioタグ＋速度ボタン
-    const audio=document.createElement('audio');
-    audio.className='speed-ctrl';
-    audio.controls=true;
-    audio.preload='metadata';
-    audio.style.cssText='width:100%;height:40px;display:block;margin-bottom:4px;accent-color:#7c3aed;';
-    audio.innerHTML=`<source src="${rawUrl}">`;
-    audio.playbackRate=window._audioPlaybackRate;
-    audio.addEventListener('canplay',function(){this.playbackRate=window._audioPlaybackRate;});
-    container.appendChild(audio);
-    container.appendChild(buildSpeedRow(audio,'sb'));
-  }
+  container.appendChild(buildWaPlayer(fileId,rawUrl,'sb'));
   wrap.innerHTML='';
   wrap.appendChild(container);
 }
@@ -778,68 +975,8 @@ function openAudioModal(){
     const rawUrl=media.audio_url;
     const m=rawUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)||rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
     const fileId=m?m[1]:null;
-    if(fileId){
-      // Google Drive: iframeで再生
-      const previewUrl=`https://drive.google.com/file/d/${fileId}/preview`;
-      const driveUrl=`https://drive.google.com/file/d/${fileId}/view`;
-      const iframeId='driveIframe_mb';
-      const iframe=document.createElement('iframe');
-      iframe.id=iframeId;
-      iframe.src=previewUrl;
-      iframe.allow='autoplay';
-      iframe.allowFullscreen=true;
-      iframe.style.cssText='width:100%;height:80px;border:none;border-radius:10px;display:block;background:#f5f0ff;margin-bottom:8px;';
-      body.appendChild(iframe);
-      // 速度ボタン
-      const speedRow=buildSpeedRow(null,'mb');
-      speedRow.querySelectorAll('.aspeed-btn').forEach(btn=>{
-        btn.onclick=function(){
-          window._audioPlaybackRate=parseFloat(btn.textContent);
-          document.querySelectorAll('.aspeed-btn').forEach(b=>{b.classList.toggle('act',b===btn);});
-          try{
-            const ifr=document.getElementById(iframeId);
-            if(ifr&&ifr.contentDocument){
-              const a=ifr.contentDocument.querySelector('audio,video');
-              if(a)a.playbackRate=window._audioPlaybackRate;
-            }
-          }catch(e){}
-          document.querySelectorAll('audio.speed-ctrl').forEach(a=>{a.playbackRate=window._audioPlaybackRate;});
-        };
-      });
-      body.appendChild(speedRow);
-      const note=document.createElement('div');
-      note.style.cssText='font-size:9px;color:#a78bfa;margin-top:4px;text-align:center;';
-      note.textContent='※ Google Drive再生時は速度設定が反映されない場合があります';
-      body.appendChild(note);
-      const lnk=document.createElement('a');
-      lnk.className='audio-modal-drive';
-      lnk.href=driveUrl;
-      lnk.target='_blank';
-      lnk.rel='noopener';
-      lnk.textContent='☁ Google Driveで開く';
-      lnk.style.marginTop='10px';
-      body.appendChild(lnk);
-    }else{
-      // 直接URL: HTML5 audio + 速度ボタン
-      const audio=document.createElement('audio');
-      audio.className='speed-ctrl';
-      audio.controls=true;
-      audio.preload='metadata';
-      audio.style.cssText='width:100%;display:block;accent-color:#7c3aed;height:44px;border-radius:10px;margin-bottom:6px;';
-      audio.innerHTML=`<source src="${rawUrl}">`;
-      audio.playbackRate=window._audioPlaybackRate;
-      audio.addEventListener('canplay',function(){this.playbackRate=window._audioPlaybackRate;});
-      body.appendChild(audio);
-      body.appendChild(buildSpeedRow(audio,'mb'));
-      const lnk=document.createElement('a');
-      lnk.className='audio-modal-drive';
-      lnk.href=rawUrl;
-      lnk.target='_blank';
-      lnk.rel='noopener';
-      lnk.textContent='☁ 外部で開く';
-      lnk.style.marginTop='10px';
-      body.appendChild(lnk);
-    }
+    // PC版と同じWeb Audio APIプレイヤーを使用（バッファ済みなら即再生）
+    body.appendChild(buildWaPlayer(fileId,rawUrl,'mb'));
   }
   modal.classList.add('open');
   document.body.style.overflow='hidden';
@@ -849,11 +986,7 @@ function closeAudioModal(e){
      !e.target.classList.contains('audio-modal-close'))return;
   document.getElementById('audioModal').classList.remove('open');
   document.body.style.overflow='';
-  // iframeを止めるため中身をリセット
-  setTimeout(()=>{
-    const b=document.getElementById('audioModalBody');
-    if(b)b.innerHTML='';
-  },300);
+  // モーダルを閉じても再生は継続（_waは共有）
 }
 // ── タブ切替 ────────────────────────────────────────────
 function switchTab(idx){
