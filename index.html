@@ -72,6 +72,7 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .audio-ico{width:30px;height:30px;background:#f3e8ff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .audio-name{font-size:10px;color:#374151;line-height:1.4}
 .audio-none{font-size:11px;color:var(--muted);text-align:center;padding:12px 0}.audio-card{background:#fafafa;border:1px solid var(--border);border-radius:9px;padding:10px;margin-bottom:0}.audio-card iframe{width:100%;height:80px;border:none;border-radius:6px;display:block}.aplayer{background:#f5f0ff;border:1.5px solid #c4b5fd;border-radius:10px;padding:12px 10px}.aplayer-title{font-size:10px;color:#6d28d9;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:5px}.aplayer-row1{display:flex;align-items:center;gap:8px;margin-bottom:10px}.aplay-btn{width:36px;height:36px;border-radius:50%;background:#7c3aed;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,transform .1s;color:#fff;font-size:15px;box-shadow:0 2px 6px rgba(124,58,237,.4)}.aplay-btn:hover{background:#6d28d9;transform:scale(1.05)}.aplay-btn:active{transform:scale(.95)}.atime-wrap{display:flex;flex-direction:column;flex:1;gap:6px}.abar-wrap{position:relative;height:28px;display:flex;align-items:center;cursor:pointer;border-radius:14px;background:#ede9fe;padding:0 2px}.abar-bg{width:100%;height:6px;background:#ddd6fe;border-radius:3px;pointer-events:none}.abar-fill{position:absolute;left:2px;height:6px;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:3px;width:0%;pointer-events:none;transition:width .1s linear}.abar-thumb{width:16px;height:16px;border-radius:50%;background:#7c3aed;position:absolute;top:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 1px 4px rgba(124,58,237,.5);transition:left .1s linear}.abar-hit{position:absolute;inset:0;cursor:pointer;border-radius:14px}.atime{font-size:10px;color:#6d28d9;font-weight:600;text-align:right;letter-spacing:.03em}.amute-btn{width:28px;height:28px;border-radius:7px;background:#ede9fe;border:1.5px solid #c4b5fd;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;color:#7c3aed;font-size:13px}.amute-btn:hover{background:#ddd6fe}.adrive-link{display:block;text-align:center;font-size:9px;color:#a78bfa;text-decoration:none;margin-top:6px;padding:3px;border-radius:4px}.adrive-link:hover{color:#7c3aed;background:#f5f3ff}
+.aspeed-row{display:flex;align-items:center;gap:5px;margin-top:8px}.aspeed-lbl{font-size:9px;color:#7c3aed;font-weight:700;white-space:nowrap}.aspeed-btn{flex:1;padding:4px 2px;background:#ede9fe;border:1.5px solid #c4b5fd;border-radius:7px;color:#6d28d9;font-size:10px;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit;text-align:center}.aspeed-btn:hover{background:#ddd6fe}.aspeed-btn.act{background:#7c3aed;border-color:#7c3aed;color:#fff;box-shadow:0 1px 4px rgba(124,58,237,.4)}
 
 .main{flex:1;min-width:0;padding:16px 20px;overflow-y:auto}
 .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
@@ -580,6 +581,36 @@ function parseLine(line){
   return fields.map(f=>f.trim());
 }
 
+// 再生速度の状態を保持
+window._audioPlaybackRate = window._audioPlaybackRate || 1.0;
+
+function buildSpeedRow(audioEl, prefix){
+  const speeds=[1.0,1.2,1.5,2.0];
+  const row=document.createElement('div');
+  row.className='aspeed-row';
+  row.id=prefix+'SpeedRow';
+  const lbl=document.createElement('span');
+  lbl.className='aspeed-lbl';
+  lbl.textContent='速度:';
+  row.appendChild(lbl);
+  speeds.forEach(s=>{
+    const btn=document.createElement('button');
+    btn.className='aspeed-btn'+(s===window._audioPlaybackRate?' act':'');
+    btn.textContent=s===1.0?'1.0×':s+'×';
+    btn.onclick=function(){
+      window._audioPlaybackRate=s;
+      // 全てのaudioタグに速度を適用
+      document.querySelectorAll('audio.speed-ctrl').forEach(a=>{a.playbackRate=s;});
+      // 全ての速度ボタンを更新
+      document.querySelectorAll('.aspeed-btn').forEach(b=>{
+        b.classList.toggle('act', b.textContent===(s===1.0?'1.0×':s+'×'));
+      });
+    };
+    row.appendChild(btn);
+  });
+  return row;
+}
+
 function renderAudio(media){
   const wrap=document.getElementById('audioWrap');
   // スマホ用: ボタンと本体URLを保存
@@ -602,13 +633,38 @@ function renderAudio(media){
   const rawUrl=media.audio_url;
   const m=rawUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)||rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
   const fileId=m?m[1]:null;
+  // カスタムプレイヤー（PC用）
+  const container=document.createElement('div');
+  container.className='aplayer';
+  const title=document.createElement('div');
+  title.className='aplayer-title';
+  title.textContent='🎙 音声ポッドキャスト';
+  container.appendChild(title);
+  const audioSrc=fileId?`https://drive.google.com/uc?export=open&id=${fileId}`:rawUrl;
+  const audio=document.createElement('audio');
+  audio.className='speed-ctrl';
+  audio.controls=true;
+  audio.preload='metadata';
+  audio.style.cssText='width:100%;height:40px;display:block;margin-bottom:4px;accent-color:#7c3aed;';
+  audio.innerHTML=`<source src="${audioSrc}">`;
+  audio.playbackRate=window._audioPlaybackRate;
+  audio.addEventListener('canplay',function(){this.playbackRate=window._audioPlaybackRate;});
+  container.appendChild(audio);
+  // 速度ボタン行
+  container.appendChild(buildSpeedRow(audio,'sb'));
+  // Google Driveリンク（iframeのフォールバック）
   if(fileId){
-    const previewUrl=`https://drive.google.com/file/d/${fileId}/preview`;
     const driveUrl=`https://drive.google.com/file/d/${fileId}/view`;
-    wrap.innerHTML=`<div class="aplayer"><div class="aplayer-title">🎙 音声ポッドキャスト</div><iframe src="${previewUrl}" allow="autoplay" allowfullscreen style="width:100%;height:72px;border:none;border-radius:8px;display:block;background:#f5f0ff;"></iframe><a class="adrive-link" href="${driveUrl}" target="_blank" rel="noopener">☁ Google Driveで開く（別タブ）</a></div>`;
-  }else{
-    wrap.innerHTML=`<div class="aplayer"><div class="aplayer-title">🎙 音声ポッドキャスト</div><audio controls preload="metadata" style="width:100%;height:40px;display:block;margin-bottom:4px;accent-color:#7c3aed;"><source src="${rawUrl}"></audio></div>`;
+    const lnk=document.createElement('a');
+    lnk.className='adrive-link';
+    lnk.href=driveUrl;
+    lnk.target='_blank';
+    lnk.rel='noopener';
+    lnk.textContent='☁ Google Driveで開く（別タブ）';
+    container.appendChild(lnk);
   }
+  wrap.innerHTML='';
+  wrap.appendChild(container);
 }
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -679,31 +735,46 @@ function openAudioModal(){
   const body=document.getElementById('audioModalBody');
   const media=window._currentAudioMedia;
   if(!modal||!body)return;
+  body.innerHTML='';
   if(!media||!media.audio_url){
     body.innerHTML='<div class="audio-modal-none">この日の音声解説はありません</div>';
   }else{
     const rawUrl=media.audio_url;
     const m=rawUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)||rawUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
     const fileId=m?m[1]:null;
+    const audioSrc=fileId?`https://drive.google.com/uc?export=open&id=${fileId}`:rawUrl;
+    // カスタムプレイヤー（スマホ用）
+    const audio=document.createElement('audio');
+    audio.className='speed-ctrl';
+    audio.controls=true;
+    audio.preload='metadata';
+    audio.style.cssText='width:100%;display:block;accent-color:#7c3aed;height:44px;border-radius:10px;margin-bottom:6px;';
+    audio.innerHTML=`<source src="${audioSrc}">`;
+    audio.playbackRate=window._audioPlaybackRate;
+    audio.addEventListener('canplay',function(){this.playbackRate=window._audioPlaybackRate;});
+    body.appendChild(audio);
+    // 速度ボタン
+    body.appendChild(buildSpeedRow(audio,'mb'));
+    // Google Driveリンク
     if(fileId){
-      const previewUrl=`https://drive.google.com/file/d/${fileId}/preview`;
       const driveUrl=`https://drive.google.com/file/d/${fileId}/view`;
-      body.innerHTML=`
-        <iframe src="${previewUrl}" allow="autoplay" allowfullscreen
-          style="width:100%;height:80px;border:none;border-radius:10px;display:block;background:#f5f0ff;">
-        </iframe>
-        <a class="audio-modal-drive" href="${driveUrl}" target="_blank" rel="noopener">
-          ☁ Google Driveで開く
-        </a>`;
+      const lnk=document.createElement('a');
+      lnk.className='audio-modal-drive';
+      lnk.href=driveUrl;
+      lnk.target='_blank';
+      lnk.rel='noopener';
+      lnk.textContent='☁ Google Driveで開く';
+      lnk.style.marginTop='10px';
+      body.appendChild(lnk);
     }else{
-      body.innerHTML=`
-        <audio controls preload="metadata"
-          style="width:100%;display:block;accent-color:#7c3aed;height:44px;border-radius:10px;">
-          <source src="${rawUrl}">
-        </audio>
-        <a class="audio-modal-drive" href="${rawUrl}" target="_blank" rel="noopener">
-          ☁ 外部で開く
-        </a>`;
+      const lnk=document.createElement('a');
+      lnk.className='audio-modal-drive';
+      lnk.href=rawUrl;
+      lnk.target='_blank';
+      lnk.rel='noopener';
+      lnk.textContent='☁ 外部で開く';
+      lnk.style.marginTop='10px';
+      body.appendChild(lnk);
     }
   }
   modal.classList.add('open');
