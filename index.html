@@ -672,7 +672,7 @@ function _waStop(){
 }
 
 function _waCurrentTime(){
-  if(_wa.playing) return ((_waCtx().currentTime - _wa.startedAt) * window._audioPlaybackRate) + _wa.pausedAt;
+  if(_wa.playing) return (_waCtx().currentTime - _wa.startedAt) + _wa.pausedAt;
   return _wa.pausedAt;
 }
 
@@ -754,7 +754,7 @@ function buildWaPlayer(fileId, rawUrl, prefix){
 
   // ── GASプロキシ経由でfetch ──────────────────────────
   // GASプロキシのURL（デプロイ後に差し替え）
-  const GAS_PROXY = 'YOUR_GAS_PROXY_URL'; // ← ここにGASのデプロイURLを貼る
+  const GAS_PROXY = 'https://script.google.com/macros/s/AKfycbzQJdGv30o8q6LtmWQ8CBjvtCdo9fBXqoSTyL0P5eztFzxxXDKt-YXBtSbWCehjAqajzQ/exec';
 
   let fetchPromise;
   if(fileId && GAS_PROXY !== 'YOUR_GAS_PROXY_URL'){
