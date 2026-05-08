@@ -685,7 +685,7 @@ function _waPlay(offset){
   src.playbackRate.value=window._audioPlaybackRate;
   src.connect(ctx.destination);
   const off=offset!=null?offset:_wa.pausedAt;
-  _wa.startedAt=ctx.currentTime - off/window._audioPlaybackRate;
+  _wa.startedAt=ctx.currentTime;
   _wa.pausedAt=off;
   _wa.playing=true;
   _wa.source=src;
@@ -780,10 +780,6 @@ function buildWaPlayer(fileId, rawUrl, prefix){
   }
 
   fetchPromise
-    .then(r=>{
-      if(!r.ok) throw new Error('fetch failed: '+r.status);
-      return r.arrayBuffer();
-    })
     .then(buf=>_waCtx().decodeAudioData(buf))
     .then(decoded=>{
       _wa.buffer=decoded;
