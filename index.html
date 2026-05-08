@@ -377,9 +377,10 @@ async function toggleLike(url, btn) {
     if (LIKES_ENDPOINT) {
       fetch(LIKES_ENDPOINT, {
         method: 'POST',
-        body: JSON.stringify({ url }),
-        headers: { 'Content-Type': 'application/json' }
+        mode: 'no-cors',
+        body: JSON.stringify({ url })
       }).catch(() => {});
+    }
     }
   }
   saveLikedSet();
