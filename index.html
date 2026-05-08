@@ -752,31 +752,66 @@ function buildWaPlayer(fileId, rawUrl, prefix){
     };
   });
 
-  // ── GASプロキシ経由でfetch ──────────────────────────
-  // GASプロキシのURL（デプロイ後に差し替え）
+  // ── GASプロキシ経由でfetch（分割取得対応）──────────────
   const GAS_PROXY = 'https://script.google.com/macros/s/AKfycbzQJdGv30o8q6LtmWQ8CBjvtCdo9fBXqoSTyL0P5eztFzxxXDKt-YXBtSbWCehjAqajzQ/exec';
 
+  // プログレスバー表示
+  const progressWrap = document.createElement('div');
+  progressWrap.style.cssText='margin-top:6px;';
+  progressWrap.innerHTML=`<div style="width:100%;height:4px;background:#ddd6fe;border-radius:2px;overflow:hidden;"><div id="${prefix}LoadBar" style="height:100%;width:0%;background:#7c3aed;border-radius:2px;transition:width .3s;"></div></div><div id="${prefix}LoadTxt" style="font-size:10px;color:#7c3aed;text-align:center;margin-top:4px;">準備中...</div>`;
+  loading.appendChild(progressWrap);
+
+  function setProgress(pct, txt){
+    const bar=document.getElementById(prefix+'LoadBar');
+    const lbl=document.getElementById(prefix+'LoadTxt');
+    if(bar) bar.style.width=pct+'%';
+    if(lbl) lbl.textContent=txt;
+  }
+
+  function b64ToU8(b64){
+    const bin=atob(b64);
+    const u8=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
+    return u8;
+  }
+
+  async function fetchChunked(fid){
+    setProgress(0,'ファイル情報を取得中...');
+    const infoRes=await fetch(GAS_PROXY+'?id='+fid);
+    if(!infoRes.ok) throw new Error('proxy failed: '+infoRes.status);
+    const info=await infoRes.json();
+    if(info.error) throw new Error(info.error);
+    const totalSize=info.size;
+    const chunkSize=info.chunkSize||(2*1024*1024);
+    const totalChunks=Math.ceil(totalSize/chunkSize);
+    const chunks=[];
+    for(let i=0;i<totalChunks;i++){
+      const start=i*chunkSize;
+      const end=Math.min(start+chunkSize-1,totalSize-1);
+      const pct=Math.round((i/totalChunks)*90);
+      const mb=Math.round(end/1024/1024*10)/10;
+      const total=Math.round(totalSize/1024/1024*10)/10;
+      setProgress(pct,'読み込み中... '+mb+'MB / '+total+'MB');
+      const res=await fetch(GAS_PROXY+'?id='+fid+'&start='+start+'&end='+end);
+      if(!res.ok) throw new Error('chunk failed: '+res.status);
+      const json=await res.json();
+      if(json.error) throw new Error(json.error);
+      chunks.push(b64ToU8(json.data));
+    }
+    setProgress(95,'結合中...');
+    const merged=new Uint8Array(totalSize);
+    let offset=0;
+    for(const chunk of chunks){ merged.set(chunk,offset); offset+=chunk.length; }
+    setProgress(100,'デコード中...');
+    return merged.buffer;
+  }
+
   let fetchPromise;
-  if(fileId && GAS_PROXY !== 'YOUR_GAS_PROXY_URL'){
-    // GASプロキシ経由：base64でJSONとして受け取り、ArrayBufferに変換
-    const proxyUrl = GAS_PROXY + '?id=' + fileId;
-    fetchPromise = fetch(proxyUrl)
-      .then(r=>{ if(!r.ok) throw new Error('proxy failed: '+r.status); return r.json(); })
-      .then(json=>{
-        if(json.error) throw new Error(json.error);
-        // base64 → Uint8Array → ArrayBuffer
-        const bin = atob(json.data);
-        const buf = new Uint8Array(bin.length);
-        for(let i=0;i<bin.length;i++) buf[i]=bin.charCodeAt(i);
-        return buf.buffer;
-      });
-  } else if(!fileId){
-    // 直接URLの場合は通常fetch
-    fetchPromise = fetch(rawUrl, {mode:'cors'})
-      .then(r=>{ if(!r.ok) throw new Error('fetch failed: '+r.status); return r.arrayBuffer(); });
+  if(fileId){
+    fetchPromise=fetchChunked(fileId);
   } else {
-    // GAS URLが未設定の場合はiframeフォールバック
-    fetchPromise = Promise.reject(new Error('GAS proxy URL not configured'));
+    fetchPromise=fetch(rawUrl,{mode:'cors'})
+      .then(r=>{ if(!r.ok) throw new Error('fetch failed: '+r.status); return r.arrayBuffer(); });
   }
 
   fetchPromise
