@@ -381,7 +381,6 @@ async function toggleLike(url, btn) {
         body: JSON.stringify({ url })
       }).catch(() => {});
     }
-    }
   }
   saveLikedSet();
   _refreshGoodBtn(url, btn);
@@ -393,12 +392,12 @@ function _refreshGoodBtn(url, btn) {
   btn.querySelector('.gbheart').textContent = liked ? '❤️' : '🤍';
   btn.querySelector('.gbcount').textContent = cnt > 0 ? String(cnt) : '';
 }
-function buildGoodFooter(url) {
-  if (!url) return '';
-  const liked = likedSet.has(url);
-  const cnt = likeCounts[url] || 0;
-  const safeUrl = url.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-  return `<div class="ncard-foot"><button class="good-btn${liked ? ' liked' : ''}" onclick="toggleLike('${safeUrl}',this)"><span class="gbheart">${liked ? '❤️' : '🤍'}</span><span class="gbcount">${cnt > 0 ? cnt : ''}</span><span>グッド</span></button></div>`;
+function buildGoodFooter(rawUrl) {
+  if (!rawUrl) return '';
+  const liked = likedSet.has(rawUrl);
+  const cnt = likeCounts[rawUrl] || 0;
+  const safeAttr = rawUrl.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+  return `<div class="ncard-foot"><button class="good-btn${liked ? ' liked' : ''}" data-like-url="${safeAttr}"><span class="gbheart">${liked ? '❤️' : '🤍'}</span><span class="gbcount">${cnt > 0 ? cnt : ''}</span><span>グッド</span></button></div>`;
 }
 // ─────────────────────────────────────────────────────────────────
 
@@ -1083,6 +1082,14 @@ document.querySelectorAll('.tab').forEach(function(t){
   t.addEventListener('click', function(){
     switchTab(Number(t.dataset.i));
   });
+});
+
+// グッドボタン イベント委譲（data-like-url属性を使用）
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.good-btn[data-like-url]');
+  if (!btn) return;
+  const url = btn.getAttribute('data-like-url');
+  if (url) toggleLike(url, btn);
 });
 
 // v20260424054337
