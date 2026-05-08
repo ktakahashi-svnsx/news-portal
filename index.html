@@ -757,7 +757,7 @@ function buildWaPlayer(fileId, rawUrl, prefix){
   const GAS_PROXY = 'YOUR_GAS_PROXY_URL'; // ← ここにGASのデプロイURLを貼る
 
   let fetchPromise;
-  if(fileId && GAS_PROXY !== 'https://script.google.com/macros/s/AKfycbxfkqoni45PQmahRJPNaATjUVviLJwbQYdwclXS1aizIFD50lkL-htvv42ovMxqktWzvg/exec'){
+  if(fileId && GAS_PROXY !== 'YOUR_GAS_PROXY_URL'){
     // GASプロキシ経由：base64でJSONとして受け取り、ArrayBufferに変換
     const proxyUrl = GAS_PROXY + '?id=' + fileId;
     fetchPromise = fetch(proxyUrl)
