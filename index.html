@@ -73,6 +73,12 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .audio-name{font-size:10px;color:#374151;line-height:1.4}
 .audio-none{font-size:11px;color:var(--muted);text-align:center;padding:12px 0}.audio-card{background:#fafafa;border:1px solid var(--border);border-radius:9px;padding:10px;margin-bottom:0}.audio-card iframe{width:100%;height:80px;border:none;border-radius:6px;display:block}.aplayer{background:#f5f0ff;border:1.5px solid #c4b5fd;border-radius:10px;padding:12px 10px}.aplayer-title{font-size:10px;color:#6d28d9;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:5px}.aplayer-row1{display:flex;align-items:center;gap:8px;margin-bottom:10px}.aplay-btn{width:36px;height:36px;border-radius:50%;background:#7c3aed;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,transform .1s;color:#fff;font-size:15px;box-shadow:0 2px 6px rgba(124,58,237,.4)}.aplay-btn:hover{background:#6d28d9;transform:scale(1.05)}.aplay-btn:active{transform:scale(.95)}.atime-wrap{display:flex;flex-direction:column;flex:1;gap:6px}.abar-wrap{position:relative;height:28px;display:flex;align-items:center;cursor:pointer;border-radius:14px;background:#ede9fe;padding:0 2px}.abar-bg{width:100%;height:6px;background:#ddd6fe;border-radius:3px;pointer-events:none}.abar-fill{position:absolute;left:2px;height:6px;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:3px;width:0%;pointer-events:none;transition:width .1s linear}.abar-thumb{width:16px;height:16px;border-radius:50%;background:#7c3aed;position:absolute;top:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 1px 4px rgba(124,58,237,.5);transition:left .1s linear}.abar-hit{position:absolute;inset:0;cursor:pointer;border-radius:14px}.atime{font-size:10px;color:#6d28d9;font-weight:600;text-align:right;letter-spacing:.03em}.amute-btn{width:28px;height:28px;border-radius:7px;background:#ede9fe;border:1.5px solid #c4b5fd;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;color:#7c3aed;font-size:13px}.amute-btn:hover{background:#ddd6fe}.adrive-link{display:block;text-align:center;font-size:9px;color:#a78bfa;text-decoration:none;margin-top:6px;padding:3px;border-radius:4px}.adrive-link:hover{color:#7c3aed;background:#f5f3ff}
 .aspeed-row{display:flex;align-items:center;gap:5px;margin-top:8px}.aspeed-lbl{font-size:9px;color:#7c3aed;font-weight:700;white-space:nowrap}.aspeed-btn{flex:1;padding:4px 2px;background:#ede9fe;border:1.5px solid #c4b5fd;border-radius:7px;color:#6d28d9;font-size:10px;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit;text-align:center}.aspeed-btn:hover{background:#ddd6fe}.aspeed-btn.act{background:#7c3aed;border-color:#7c3aed;color:#fff;box-shadow:0 1px 4px rgba(124,58,237,.4)}
+.ncard-foot{display:flex;align-items:center;justify-content:flex-end;padding:6px 12px 10px;border-top:1px solid var(--border);margin-top:4px}
+.good-btn{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);background:none;border:1.5px solid var(--border);border-radius:20px;padding:4px 12px;cursor:pointer;transition:all .15s;user-select:none;font-family:inherit}
+.good-btn:hover{border-color:#f43f5e;color:#f43f5e;background:rgba(244,63,94,.05)}
+.good-btn.liked{border-color:#f43f5e;color:#f43f5e;background:rgba(244,63,94,.07)}
+.good-btn .gbheart{font-size:14px}.good-btn.liked .gbheart{animation:goodPop .35s ease}
+@keyframes goodPop{0%{transform:scale(1)}40%{transform:scale(1.55)}70%{transform:scale(.88)}100%{transform:scale(1)}}
 
 .main{flex:1;min-width:0;padding:16px 20px;overflow-y:auto}
 .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
@@ -339,6 +345,62 @@ const PAL=['#dc2626','#2563eb','#059669','#f59e0b','#7c3aed','#0891b2'];
 let curDate=null,availDates=[],calY,calM,allRows=[],allChartRows=[],allMediaRows=[];
 const CI={};
 
+// ── グッドボタン ──────────────────────────────────────────────────
+// ▼ Apps ScriptデプロイURLを設定するとスプレッドシートにも記録されます
+const LIKES_ENDPOINT = '';  // 例: 'https://script.google.com/macros/s/XXXXX/exec'
+const LS_LIKES_KEY = 'np_liked_v2';
+let likedSet = new Set();
+let likeCounts = {};
+
+function loadLikedSet() {
+  try { likedSet = new Set(JSON.parse(localStorage.getItem(LS_LIKES_KEY) || '[]')); } catch(e) {}
+}
+function saveLikedSet() {
+  try { localStorage.setItem(LS_LIKES_KEY, JSON.stringify([...likedSet])); } catch(e) {}
+}
+async function fetchLikeCounts() {
+  if (!LIKES_ENDPOINT) return;
+  try {
+    const res = await fetch(LIKES_ENDPOINT);
+    const j = await res.json();
+    if (j.ok) likeCounts = j.data;
+  } catch(e) {}
+}
+async function toggleLike(url, btn) {
+  const wasLiked = likedSet.has(url);
+  if (wasLiked) {
+    likedSet.delete(url);
+    likeCounts[url] = Math.max(0, (likeCounts[url] || 1) - 1);
+  } else {
+    likedSet.add(url);
+    likeCounts[url] = (likeCounts[url] || 0) + 1;
+    if (LIKES_ENDPOINT) {
+      fetch(LIKES_ENDPOINT, {
+        method: 'POST',
+        body: JSON.stringify({ url }),
+        headers: { 'Content-Type': 'application/json' }
+      }).catch(() => {});
+    }
+  }
+  saveLikedSet();
+  _refreshGoodBtn(url, btn);
+}
+function _refreshGoodBtn(url, btn) {
+  const liked = likedSet.has(url);
+  const cnt = likeCounts[url] || 0;
+  btn.classList.toggle('liked', liked);
+  btn.querySelector('.gbheart').textContent = liked ? '❤️' : '🤍';
+  btn.querySelector('.gbcount').textContent = cnt > 0 ? String(cnt) : '';
+}
+function buildGoodFooter(url) {
+  if (!url) return '';
+  const liked = likedSet.has(url);
+  const cnt = likeCounts[url] || 0;
+  const safeUrl = url.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  return `<div class="ncard-foot"><button class="good-btn${liked ? ' liked' : ''}" onclick="toggleLike('${safeUrl}',this)"><span class="gbheart">${liked ? '❤️' : '🤍'}</span><span class="gbcount">${cnt > 0 ? cnt : ''}</span><span>グッド</span></button></div>`;
+}
+// ─────────────────────────────────────────────────────────────────
+
 // CSV Parser（\r\n対応）
 function parseCSV(text){
   const lines=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n').filter(l=>l.trim());
@@ -512,7 +574,8 @@ function renderNews(i,theme,data){
     const card=document.createElement('div');card.className='ncard';
     const ins=item.insight?`<div class="ninsight">${item.insight}</div>`:'';
     const url=item.source?`<div class="nurl"><a href="${item.source}" target="_blank" rel="noopener">${item.source.length>55?item.source.slice(0,55)+'…':item.source}</a></div>`:'';
-    card.innerHTML=`<div class="ncard-body"><div class="ncard-meta"><span class="ntag ${theme.cls}">${item.tag||theme.label}</span><span class="nmedia">${item.sourceLabel||''}</span></div><div class="ntitle">${item.title}</div><div class="nbody">${item.detail}</div>${ins}${url}</div>`;
+    const goodFoot = theme.key==='domestic' ? buildGoodFooter(item.source||item.title) : '';
+    card.innerHTML=`<div class="ncard-body"><div class="ncard-meta"><span class="ntag ${theme.cls}">${item.tag||theme.label}</span><span class="nmedia">${item.sourceLabel||''}</span></div><div class="ntitle">${item.title}</div><div class="nbody">${item.detail}</div>${ins}${url}</div>${goodFoot}`;
     grid.appendChild(card);
   });
 }
@@ -1023,6 +1086,8 @@ document.querySelectorAll('.tab').forEach(function(t){
 
 // v20260424054337
 (async()=>{
+  loadLikedSet();
+  fetchLikeCounts();  // GASエンドポイント設定時はいいね数をDBから取得
   initCal();
   try{ await loadAll(); }catch(e){ console.error('loadAll error:',e); }
   // 成功・失敗にかかわらず必ずローディングを非表示
