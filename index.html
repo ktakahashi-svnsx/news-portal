@@ -6,7 +6,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><!-- v20260516121941 -->光・宇宙・政治 ニュースポータル</title>
+<title><!-- v20260516131202 -->光・宇宙・政治 ニュースポータル</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -364,7 +364,7 @@ async function fetchLikeCounts() {
     const res = await fetch(LIKES_ENDPOINT);
     const j = await res.json();
     if (j.ok) likeCounts = j.data;
-  } catch(e) {}
+  } catch(e) { console.warn('fetchLikeCounts failed:', e); }
 }
 async function toggleLike(url, btn) {
   const wasLiked = likedSet.has(url);
@@ -810,10 +810,10 @@ document.addEventListener('click', function(e) {
   if (url) toggleLike(url, btn);
 });
 
-// v20260516121941
+// v20260516131202
 (async()=>{
   loadLikedSet();
-  fetchLikeCounts();  // GASエンドポイント設定時はいいね数をDBから取得
+  try{ await fetchLikeCounts(); }catch(e){ console.error('fetchLikeCounts error:',e); }
   initCal();
   try{ await loadAll(); }catch(e){ console.error('loadAll error:',e); }
   // 成功・失敗にかかわらず必ずローディングを非表示
