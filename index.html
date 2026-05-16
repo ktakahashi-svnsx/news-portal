@@ -6,7 +6,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><!-- v20260424054337 -->光・宇宙・政治 ニュースポータル</title>
+<title><!-- v20260516121941 -->光・宇宙・政治 ニュースポータル</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -347,7 +347,7 @@ const CI={};
 
 // ── グッドボタン ──────────────────────────────────────────────────
 // ▼ Apps ScriptデプロイURLを設定するとスプレッドシートにも記録されます
-const LIKES_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzlgK2Vlfbl_qU-MEUNqyzV718UhJ5XeFoF6U8uIUnq3CxhEWiS95WE7SmTUfMGkiligw/exec';
+const LIKES_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwbvl2YjPSwP5BgFa-JINS0Ya8Tdbf8GoABKv49PdIUTkI4nmmPmy1Cvqs5AulutIl8Cg/exec';
 const LS_LIKES_KEY = 'np_liked_v2';
 let likedSet = new Set();
 let likeCounts = {};
@@ -810,7 +810,7 @@ document.addEventListener('click', function(e) {
   if (url) toggleLike(url, btn);
 });
 
-// v20260424054337
+// v20260516121941
 (async()=>{
   loadLikedSet();
   fetchLikeCounts();  // GASエンドポイント設定時はいいね数をDBから取得
