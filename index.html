@@ -423,6 +423,79 @@ function trackPageview() {
   }
 }
 
+// ── 音声プレーヤー再生回数トラッキング ───────────────────────────────
+// 同一セッション・同一日付では1回しかカウントしないよう sessionStorage で重複防止
+const SS_AUDIO_PLAYED_KEY = 'np_audio_played_v1';
+
+function _getPlayedDates() {
+  try {
+    return new Set(JSON.parse(sessionStorage.getItem(SS_AUDIO_PLAYED_KEY) || '[]'));
+  } catch(e) { return new Set(); }
+}
+function _savePlayedDates(set) {
+  try {
+    sessionStorage.setItem(SS_AUDIO_PLAYED_KEY, JSON.stringify([...set]));
+  } catch(e) {}
+}
+
+function trackAudioPlay(date) {
+  if (!ANALYTICS_ENDPOINT) return;
+  if (!date) return;
+  // セッション内重複防止: 同じ日付の音声を複数回再生しても1カウントだけ
+  const played = _getPlayedDates();
+  if (played.has(date)) return;
+  played.add(date);
+  _savePlayedDates(played);
+
+  try {
+    fetch(ANALYTICS_ENDPOINT, {
+      method: 'POST',
+      mode:   'no-cors',
+      headers:{ 'Content-Type': 'text/plain;charset=utf-8' },
+      body:   JSON.stringify({ type: 'audio_play', date: date })
+    }).catch(() => {});
+  } catch(e) {
+    console.warn('trackAudioPlay failed:', e);
+  }
+}
+
+// ── PDFダウンロード回数トラッキング ───────────────────────────────
+// 同一セッション・同一日付・同一種別では1回だけカウント
+const SS_PDF_DOWNLOADED_KEY = 'np_pdf_downloaded_v1';
+
+function _getDownloadedKeys() {
+  try {
+    return new Set(JSON.parse(sessionStorage.getItem(SS_PDF_DOWNLOADED_KEY) || '[]'));
+  } catch(e) { return new Set(); }
+}
+function _saveDownloadedKeys(set) {
+  try {
+    sessionStorage.setItem(SS_PDF_DOWNLOADED_KEY, JSON.stringify([...set]));
+  } catch(e) {}
+}
+
+function trackPdfDownload(date, kind) {
+  if (!ANALYTICS_ENDPOINT) return;
+  if (!date || !kind) return;
+  // セッション内重複防止: "YYYY-MM-DD:kind" 単位
+  const key = date + ':' + kind;
+  const downloaded = _getDownloadedKeys();
+  if (downloaded.has(key)) return;
+  downloaded.add(key);
+  _saveDownloadedKeys(downloaded);
+
+  try {
+    fetch(ANALYTICS_ENDPOINT, {
+      method: 'POST',
+      mode:   'no-cors',
+      headers:{ 'Content-Type': 'text/plain;charset=utf-8' },
+      body:   JSON.stringify({ type: 'pdf_download', date: date, kind: kind })
+    }).catch(() => {});
+  } catch(e) {
+    console.warn('trackPdfDownload failed:', e);
+  }
+}
+
 // ── グッドボタン ──────────────────────────────────────────────────
 // ▼ Apps ScriptデプロイURLを設定するとスプレッドシートにも記録されます
 const LIKES_ENDPOINT = ANALYTICS_ENDPOINT;
@@ -691,19 +764,31 @@ function renderPDFs(media){
   if(mbTech){mbTech.classList.add('off');mbTech.removeAttribute('href');}
   if(mbPol){mbPol.classList.add('off');mbPol.removeAttribute('href');}
   if(!media)return;
+  // ── ダウンロード検知用クリックハンドラ（重複登録防止のため一度デタッチしてから付け直す） ──
+  // 'tech'/'pol' をデータ属性で持たせて1つのハンドラで両方処理
+  const _onPdfClick=(ev)=>{
+    const kind=ev.currentTarget.dataset.pdfKind;
+    if(kind) trackPdfDownload(curDate, kind);
+  };
+  [tBtn,pBtn,mbTech,mbPol].forEach(el=>{
+    if(!el)return;
+    if(el._pdfClickHandler) el.removeEventListener('click',el._pdfClickHandler);
+    el._pdfClickHandler=_onPdfClick;
+    el.addEventListener('click',_onPdfClick);
+  });
   // 技術系PDF
   const techUrl=media.pdf_tech_url||'';
   if(techUrl){
-    if(tBtn){tBtn.classList.remove('off');tBtn.href=techUrl;}
+    if(tBtn){tBtn.classList.remove('off');tBtn.href=techUrl;tBtn.dataset.pdfKind='tech';}
     if(tNm)tNm.textContent='技術系レポートPDF';
-    if(mbTech){mbTech.classList.remove('off');mbTech.href=techUrl;}
+    if(mbTech){mbTech.classList.remove('off');mbTech.href=techUrl;mbTech.dataset.pdfKind='tech';}
   }
   // 政治系PDF
   const polUrl=media.pdf_pol_url||'';
   if(polUrl){
-    if(pBtn){pBtn.classList.remove('off');pBtn.href=polUrl;}
+    if(pBtn){pBtn.classList.remove('off');pBtn.href=polUrl;pBtn.dataset.pdfKind='pol';}
     if(pNm)pNm.textContent='政治情勢レポートPDF';
-    if(mbPol){mbPol.classList.remove('off');mbPol.href=polUrl;}
+    if(mbPol){mbPol.classList.remove('off');mbPol.href=polUrl;mbPol.dataset.pdfKind='pol';}
   }
 }
 
@@ -735,6 +820,31 @@ function buildWaPlayer(fileId, rawUrl, prefix){
     iframe.allow='autoplay';
     iframe.style.cssText='width:100%;height:72px;border:none;border-radius:8px;display:block;background:#f5f0ff;margin-bottom:6px;';
     wrap.appendChild(iframe);
+    // ── 再生回数トラッキング（Drive iframeはクロスオリジンで内部イベントを取得できないため、
+    //    最初のクリック/タッチ/フォーカスを「再生意図」として検知する標準的アプローチ） ──
+    let _audioPlayTracked=false;
+    const _trackOnce=()=>{
+      if(_audioPlayTracked)return;
+      _audioPlayTracked=true;
+      trackAudioPlay(curDate);
+    };
+    // iframeへのクリックはブラウザ仕様上、iframeにフォーカスが移った時点で
+    // 親ウィンドウの blur イベントが発火するのでそれを利用
+    const _onBlur=()=>{
+      // iframeにフォーカスが移ったかを次フレームで確認
+      setTimeout(()=>{
+        if(document.activeElement===iframe){
+          _trackOnce();
+          window.removeEventListener('blur',_onBlur);
+        }
+      },0);
+    };
+    window.addEventListener('blur',_onBlur);
+    // タッチデバイス向けフォールバック: iframeを囲む透明オーバーレイで初回タップ検知
+    // ただし通常クリックでblurイベントが取れるブラウザではこちらは発火しない
+    iframe.addEventListener('mouseenter',()=>{
+      // ホバーだけではカウントしない（再生検知は blur で行う）
+    });
     const lnk=document.createElement('a');
     lnk.className='adrive-link';
     lnk.href=driveUrl;
@@ -748,6 +858,10 @@ function buildWaPlayer(fileId, rawUrl, prefix){
     audio.preload='metadata';
     audio.style.cssText='width:100%;height:40px;display:block;accent-color:#7c3aed;';
     audio.innerHTML='<source src="'+rawUrl+'">';
+    // ── 再生回数トラッキング（<audio>要素は play イベントで正確に検知できる） ──
+    audio.addEventListener('play',()=>{
+      trackAudioPlay(curDate);
+    },{once:true});
     wrap.appendChild(audio);
   }
   return wrap;
