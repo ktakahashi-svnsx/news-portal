@@ -424,6 +424,25 @@ function trackPageview() {
   }
 }
 
+
+// ── 音声再生記録 ──────────────────────────────────────────────────
+let _lastAudioPlayDate = null;
+function trackAudioPlay(dateStr) {
+  if (!ANALYTICS_ENDPOINT || !dateStr) return;
+  // 同じ日付は1セッション中1回のみ送信
+  if (_lastAudioPlayDate === dateStr) return;
+  _lastAudioPlayDate = dateStr;
+  try {
+    fetch(ANALYTICS_ENDPOINT, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ type: 'audio_play', date: dateStr })
+    }).catch(() => {});
+  } catch(e) {
+    console.warn('trackAudioPlay failed:', e);
+  }
+}
 // ── グッドボタン ──────────────────────────────────────────────────
 // ▼ Apps ScriptデプロイURLを設定するとスプレッドシートにも記録されます
 const LIKES_ENDPOINT = ANALYTICS_ENDPOINT;
@@ -776,6 +795,8 @@ function renderAudio(media){
   container.appendChild(buildWaPlayer(fileId,rawUrl,'sb'));
   wrap.innerHTML='';
   wrap.appendChild(container);
+  // 音声ウィジェット表示時に再生記録（curDateを使用）
+  if (curDate) trackAudioPlay(curDate);
 }
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -868,6 +889,8 @@ function openAudioModal(){
     const fileId=m?m[1]:null;
     // PC版と同じWeb Audio APIプレイヤーを使用（バッファ済みなら即再生）
     body.appendChild(buildWaPlayer(fileId,rawUrl,'mb'));
+    // スマホ：モーダルを開いた時点で再生記録（curDateを使用）
+    if (curDate) trackAudioPlay(curDate);
   }
   modal.classList.add('open');
   document.body.style.overflow='hidden';
