@@ -141,10 +141,10 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
   .ntitle{font-size:13px}
   .nbody{font-size:12px;-webkit-line-clamp:3}
 
-  /* 流れるタイトル（ティッカー）：タップしやすく拡大 */
-  .kw-bar{padding:9px 10px}
-  .kw-tag{font-size:12.5px;padding:5px 0}
-  .kw-sep{padding:0 8px}
+  /* 流れるタイトル（ティッカー）：スマホは文字を小さめに */
+  .kw-bar{padding:7px 10px}
+  .kw-tag{font-size:10px;padding:4px 0}
+  .kw-sep{padding:0 7px}
 
   /* カレンダー */
   .cal{width:100%}
@@ -711,18 +711,27 @@ function buildMarquee(track){
   track.style.animation='none';
   track.innerHTML='';
   if(!list.length)return;
+  // スマホ表示では流れるタイトルを20文字までに省略（全文はタップでカード表示）
+  const isMobile=window.matchMedia('(max-width:700px)').matches;
+  const MAXLEN=20;
+  const shorten=t=>{
+    t=t||'';
+    return (isMobile && [...t].length>MAXLEN) ? [...t].slice(0,MAXLEN).join('')+'…' : t;
+  };
   // 1セット分（末尾に区切り「・」を付けて連結時も等間隔に）
   const buildUnit=()=>{
     const f=document.createDocumentFragment();
     list.forEach(k=>{
       const isObj=k&&typeof k==='object';
+      const full=isObj?k.title:k;
       const sp=document.createElement('span');
       sp.className='kw-tag';
-      sp.textContent=isObj?k.title:k;
+      sp.textContent=shorten(full);
       if(isObj&&k.art){              // クリックで該当記事へジャンプ
         sp.classList.add('lnk');
         sp.dataset.art=k.art;
         if(k.url)sp.dataset.url=k.url;
+        if(full)sp.setAttribute('title',full);   // 省略時も全文をツールチップ表示
         sp.setAttribute('role','link');
         sp.setAttribute('tabindex','0');
       }
