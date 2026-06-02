@@ -316,7 +316,7 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 <header class="hdr">
   <a class="hdr-logo" href="https://www.sevensix.co.jp/" target="_blank" rel="noopener" title="セブンシックス株式会社"><div class="hdr-logo-bar"></div><div class="hdr-logo-txt">sevensix</div></a>
   <h1>光学ビジネス ニュースポータル</h1>
-  <span class="hdr-sub">光学・光アプリケーション / 政治</span>
+  <span class="hdr-sub">光学関連 / 政治経済</span>
   <div class="hdr-right"><div class="hdr-live"></div><span>日別ニュース</span></div>
 </header>
 <div class="site-notice">
@@ -350,8 +350,8 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
   </div></aside>
   <main class="main">
     <div class="tabs">
-      <button class="tab act" data-i="0"><span class="tab-ico">☀</span>光学・光アプリケーション<span class="tab-badge" id="b0">0</span></button>
-      <button class="tab" data-i="1"><span class="tab-ico">🏛</span>政治（国内・海外）<span class="tab-badge" id="b1">0</span></button>
+      <button class="tab act" data-i="0"><span class="tab-ico">☀</span>光学関連<span class="tab-badge" id="b0">0</span></button>
+      <button class="tab" data-i="1"><span class="tab-ico">🏛</span>政治経済<span class="tab-badge" id="b1">0</span></button>
     </div>
     <div class="panel act" id="p0"><div class="kw-bar"><div class="kw-marquee"><div class="kw-track" id="kw0"></div></div></div><div class="ngrid" id="ng0"></div><div class="charts-sec" id="ch0"></div></div>
     <div class="panel" id="p1"><div class="kw-bar"><div class="kw-marquee"><div class="kw-track" id="kw1"></div></div></div><div class="ngrid" id="ng1"></div><div class="charts-sec" id="ch1"></div></div>
@@ -361,8 +361,8 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 const SHEET_ID='1D5GDqcSrJj6_SGk3OlnTDqoBL0su03t9Yi5McGTb578';
 const BASE=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 const THEMES=[
-  {key:'optics',   label:'光学',    cls:'t0',kws:['フォトニクス','シリコンフォトニクス','光電融合','LiDAR','CPO']},
-  {key:'politics', label:'政治',    cls:'t2',kws:['国会','閣議','与党','野党','経済安保','米中','欧州','地政学','輸出規制','外交']},
+  {key:'optics',   label:'光学関連',cls:'t0',kws:['フォトニクス','シリコンフォトニクス','光電融合','LiDAR','CPO']},
+  {key:'politics', label:'政治経済',cls:'t2',kws:['国会','閣議','与党','野党','経済安保','米中','欧州','地政学','輸出規制','外交']},
 ];
 const PAL=['#dc2626','#2563eb','#059669','#f59e0b','#7c3aed','#0891b2'];
 let curDate=null,availDates=[],calY,calM,allRows=[],allChartRows=[],allMediaRows=[];
