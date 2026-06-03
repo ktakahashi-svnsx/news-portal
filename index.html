@@ -12,6 +12,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
+/* ── サイトフッター ── */
+.site-footer{background:#2d2d2d;color:#d1d5db;font-size:12px;padding:22px 20px 18px;margin-top:auto;flex-shrink:0}
+.site-footer-inner{max-width:900px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.site-footer-logo-txt{font-family:'Oswald','Noto Sans JP',sans-serif;font-size:20px;font-weight:700;color:#e5e7eb;letter-spacing:.04em}
+.site-footer-nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
+.site-footer-nav a{color:#d1d5db;text-decoration:none;transition:color .15s}
+.site-footer-nav a:hover{color:#fff}
+.site-footer-sep{color:#6b7280}
+.site-footer-copy{font-size:11px;color:#9ca3af}
+@media(max-width:600px){.site-footer{padding-bottom:130px}.site-footer-nav{gap:7px 10px}}
+
 :root{--red:#dc2626;--red-lt:#fef2f2;--purple:#7c3aed;--green:#059669;--blue:#2563eb;--bg:#f1f3f6;--white:#fff;--border:#e2e5ea;--text:#111827;--muted:#6b7280;--side:210px}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
@@ -307,7 +318,7 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:13px;background:var(--bg);c
 .chart-card-ttl{font-size:12px;font-weight:700;color:#374151;margin-bottom:2px}
 .chart-card-sub{font-size:10px;color:var(--muted);margin-bottom:12px}
 .chart-wrap{height:220px;position:relative}
-.site-notice{background:#fffbeb;border-bottom:1px solid #fde68a;padding:7px 20px;text-align:center;font-size:10px;color:#92400e;line-height:1.6;flex-shrink:0}
+.site-notice{background:#888888;border-bottom:1px solid #777;padding:7px 20px;text-align:center;font-size:10px;color:#fff;line-height:1.6;flex-shrink:0}
 @media(max-width:700px){.site-notice{font-size:10px;padding:7px 12px}}
 </style>
 </head>
@@ -1133,6 +1144,23 @@ document.addEventListener('touchend', function(){
     </div>
   </div>
 </div>
+
+<!-- ── フッター ── -->
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-logo">
+      <span class="site-footer-logo-txt">sevensix</span>
+    </div>
+    <nav class="site-footer-nav">
+      <a href="https://www.sevensix.co.jp/company/" target="_blank" rel="noopener">会社情報</a>
+      <span class="site-footer-sep">|</span>
+      <a href="https://www.sevensix.co.jp/privacy/" target="_blank" rel="noopener">個人情報保護方針</a>
+      <span class="site-footer-sep">|</span>
+      <a href="https://www.sevensix.co.jp/contact/" target="_blank" rel="noopener">お問い合わせ</a>
+    </nav>
+    <p class="site-footer-copy">Copyright &copy; Sevensix Inc. All rights reserved.</p>
+  </div>
+</footer>
 
 <!-- ── カレンダーモーダル（スマホ用） ── -->
 <div class="cal-modal" id="calModal" onclick="closeCalModal(event)">
